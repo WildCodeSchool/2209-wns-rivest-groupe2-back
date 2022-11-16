@@ -45,8 +45,8 @@ export class User {
   @Column()
   hashedPassword: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   profilePicture: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)

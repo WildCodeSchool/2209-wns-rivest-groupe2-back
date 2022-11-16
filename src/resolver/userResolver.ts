@@ -1,6 +1,24 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entities/user";
 import dataSource from "../utils";
+
+@InputType()
+class UserType {
+  @Field()
+  username: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  firstname: string;
+
+  @Field()
+  lastname: string;
+
+  @Field()
+  hashedPassword: string;
+}
 
 @Resolver(User)
 export class UserResolver {
@@ -9,12 +27,17 @@ export class UserResolver {
     return await dataSource.manager.find(User);
   }
 
-  //   @Mutation(() => User)
-  //   async createWilder(@Arg("name") name: string): Promise<User> {
-  //     const newWilder = new User();
-  //     newWilder.name = name;
-  //     const wilderFromDB = await dataSource.manager.save(User, newWilder);
-  //     console.log(wilderFromDB);
-  //     return wilderFromDB;
-  //   }
+  @Mutation(() => User)
+  async createUser(@Arg("data") data: UserType): Promise<User> {
+    const newUser = new User();
+    newUser.username = data.username;
+    newUser.email = data.email;
+    newUser.firstname = data.firstname;
+    newUser.lastname = data.lastname;
+    newUser.hashedPassword = data.hashedPassword;
+
+    const userFromDB = await dataSource.manager.save(User, newUser);
+    console.log(userFromDB);
+    return userFromDB;
+  }
 }
