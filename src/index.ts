@@ -12,7 +12,7 @@ const start = async (): Promise<void> => {
   const server = new ApolloServer({ schema });
 
   const { url }: { url: string } = await server.listen({ port });
-  console.log(`🚀  Server ready at ${url}`);
+  console.log(`🚀 Server is ready at ${url}`);
 };
 
 void start();

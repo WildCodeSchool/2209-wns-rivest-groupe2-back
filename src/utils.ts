@@ -11,7 +11,7 @@ const dataSource = new DataSource({
   host: "db",
   port: 5432,
   username: "postgres",
-  password: "changemeinprodplease",
+  password: "admin1234",
   database: "postgres",
   synchronize: true,
   entities: [City, Comment, Country, PointOfInterest, Rate, User],

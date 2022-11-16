@@ -64,11 +64,8 @@ export class PointOfInterest {
   @Index({ spatial: true })
   @Column({
     type: "geometry",
-    srid: 4326,
-    nullable: true,
-    spatialFeatureType: "Point",
   })
-  current_location: string;
+  localisation: string;
 
   @Field()
   @Column({ type: "timestamp", nullable: true })
