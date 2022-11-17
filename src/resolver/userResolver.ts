@@ -79,7 +79,9 @@ export class UserResolver {
 
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User);
+    return await dataSource.manager.find(User, {
+      relations: { rates: true, comments: true },
+    });
   }
 
   @Mutation(() => User)
@@ -91,9 +93,13 @@ export class UserResolver {
     newUser.lastname = data.lastname;
     newUser.hashedPassword = await argon2.hash(data.password);
 
-    const userFromDB = await dataSource.manager.save(User, newUser);
-    console.log(userFromDB);
-    return userFromDB;
+    try {
+      const userFromDB = await dataSource.manager.save(User, newUser);
+      console.log(userFromDB);
+      return userFromDB;
+    } catch (err) {
+      throw new ApolloError(err.message);
+    }
   }
 
   @Mutation(() => User)
