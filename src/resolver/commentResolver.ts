@@ -91,8 +91,8 @@ export class CommentResolver {
       const commentToUpdate = await dataSource.manager.findOneByOrFail(Comment, {
         id,
       });
-      username ? (userToUpdate.username = username) : userToUpdate.username;
-      email ? (userToUpdate.email = email) : userToUpdate.email;
+      userId ? (userToUpdate.username = username) : userToUpdate.username;
+      pointOfInterestId ? (userToUpdate.email = email) : userToUpdate.email;
       firstname ? (userToUpdate.firstname = firstname) : userToUpdate.firstname;
       lastname ? (userToUpdate.lastname = lastname) : userToUpdate.lastname;
       password
