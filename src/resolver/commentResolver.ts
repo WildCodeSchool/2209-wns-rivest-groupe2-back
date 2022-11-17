@@ -91,11 +91,11 @@ export class CommentResolver {
       const commentToUpdate = await dataSource.manager.findOneByOrFail(Comment, {
         id,
       });
-      userId ? (userToUpdate.username = username) : userToUpdate.username;
-      pointOfInterestId ? (userToUpdate.email = email) : userToUpdate.email;
-      firstname ? (userToUpdate.firstname = firstname) : userToUpdate.firstname;
-      lastname ? (userToUpdate.lastname = lastname) : userToUpdate.lastname;
-      password
+      userId ? (commentToUpdate.userId = userId) : commentToUpdate.userId;
+      pointOfInterestId ? (commentToUpdate.pointOfInterestId = pointOfInterestId) : commentToUpdate.pointOfInterestId;
+      createDate ? (commentToUpdate.createDate = createDate) : commentToUpdate.createDate;
+      updateDate ? (commentToUpdate.updateDate = updateDate) : commentToUpdate.updateDate;
+      text ? (commentToUpdate.updateDate = updateDate) : commentToUpdate.updateDate;
         ? (userToUpdate.hashedPassword = await argon2.hash(password))
         : userToUpdate.hashedPassword;
       profilePicture
