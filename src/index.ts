@@ -1,8 +1,11 @@
 import "reflect-metadata";
+import * as dotenv from "dotenv";
 import { ApolloServer } from "apollo-server";
 import dataSource from "./utils";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolver/userResolver";
+
+dotenv.config();
 
 const port = 5000;
 
