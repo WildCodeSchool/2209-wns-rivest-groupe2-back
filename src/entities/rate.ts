@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Timestamp,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { User } from "./user";
@@ -34,7 +28,7 @@ export class Rate {
 
   @Field()
   @Column({ type: "timestamp", nullable: true })
-  creationDate: Date;
+  createDate: Date;
 
   @Field({ nullable: true })
   @Column({ type: "timestamp", nullable: true })

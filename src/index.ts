@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import { ApolloServer } from "apollo-server";
 import dataSource from "./utils";
 import { buildSchema } from "type-graphql";
@@ -13,11 +14,47 @@ const port = 5000;
 
 const start = async (): Promise<void> => {
   await dataSource.initialize();
-  const schema = await buildSchema({ resolvers: [UserResolver, RateResolver] });
-  const server = new ApolloServer({ schema });
+  const schema = await buildSchema({
+    resolvers: [UserResolver, RateResolver, CommentResolver],
+    authChecker: ({ context }) => {
+      console.log("context", context);
+      if (context.username === undefined) {
+        return false;
+      } else return true;
+    },
+  });
+  const server = new ApolloServer({
+    schema,
+    context: ({ req }) => {
+      if (
+        req.headers.authorization === undefined ||
+        process.env.JWT_SECRET_KEY === undefined
+      ) {
+        return {};
+      } else {
+        try {
+          const bearer = req.headers.authorization.split("Bearer ")[1];
+          if (bearer.length > 0) {
+            const user = jwt.verify(
+              req.headers.authorization,
+              process.env.JWT_SECRET_KEY
+            );
+            return user;
+          } else return {};
+        } catch (error) {
+          console.log(error);
+          return {};
+        }
+      }
+    },
+  });
 
-  const { url }: { url: string } = await server.listen({ port });
-  console.log(`🚀 Server is ready at ${url}`);
+  try {
+    const { url }: { url: string } = await server.listen({ port });
+    console.log(`🚀  Server ready at ${url}`);
+  } catch (error) {
+    console.log("Error starting the server");
+  }
 };
 
 void start();

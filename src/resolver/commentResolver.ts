@@ -1,5 +1,3 @@
-import * as argon2 from "argon2";
-import jwt from "jsonwebtoken";
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { Comment } from "../entities/comment";
 import dataSource from "../utils";
@@ -8,16 +6,10 @@ import { ApolloError } from "apollo-server";
 @InputType()
 class CommentType {
   @Field()
-  userId: int;
+  userId: number;
 
   @Field()
-  pointOfInterestId: int;
-
-  @Field()
-  createDate: Date;
-
-  @Field()
-  updateDate: Date;
+  pointOfInterestId: number;
 
   @Field()
   text: string;
@@ -29,13 +21,10 @@ class UpdateCommentInput {
   id: number;
 
   @Field({ nullable: true })
-  userId: int;
+  userId: number;
 
-  @Field({ nullable: true })
-  pointOfInterestId: int;
-
-  @Field({ nullable: true })
-  createDate: Date;
+  @Field({})
+  pointOfInterestId: number;
 
   @Field({ nullable: true })
   updateDate: Date;
@@ -46,31 +35,26 @@ class UpdateCommentInput {
 
 @Resolver(Comment)
 export class CommentResolver {
-  @Query(() => Comment)
-  async getComment(): Promise<Comment> {
-    return await dataSource.manager.find(Comment);
-      } 
-    } 
-
   @Query(() => [Comment])
   async getAllComments(): Promise<Comment[]> {
     return await dataSource.manager.find(Comment);
   }
 
   @Mutation(() => Comment)
-  async createComment(@Arg("data") data: CommentType): Promise<Comment | ApolloError> {
+  async createComment(
+    @Arg("data") data: CommentType
+  ): Promise<Comment | ApolloError> {
     const newComment = new Comment();
     newComment.userId = data.userId;
     newComment.pointOfInterestId = data.pointOfInterestId;
-    newComment.createDate = data.createDate;
-    newComment.updateDate = data.updateDate;
+    newComment.createDate = new Date();
     newComment.text = data.text;
-   
+
     try {
       const commentFromDB = await dataSource.manager.save(Comment, newComment);
       console.log(commentFromDB);
       return commentFromDB;
-    } catch (err) {
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }
@@ -79,41 +63,32 @@ export class CommentResolver {
   async updateComment(
     @Arg("data") data: UpdateCommentInput
   ): Promise<Comment | ApolloError> {
-    const {
-      id,
-      userId,
-      pointOfInterestId,
-      createDate,
-      updateDate,
-      text,
-    } = data;
+    const { id, userId, pointOfInterestId, updateDate, text } = data;
     try {
-      const commentToUpdate = await dataSource.manager.findOneByOrFail(Comment, {
-        id,
-      });
-      userId ? (commentToUpdate.userId = userId) : commentToUpdate.userId;
-      pointOfInterestId ? (commentToUpdate.pointOfInterestId = pointOfInterestId) : commentToUpdate.pointOfInterestId;
-      createDate ? (commentToUpdate.createDate = createDate) : commentToUpdate.createDate;
-      updateDate ? (commentToUpdate.updateDate = updateDate) : commentToUpdate.updateDate;
-      text ? (commentToUpdate.updateDate = updateDate) : commentToUpdate.updateDate;
-        ? (userToUpdate.hashedPassword = await argon2.hash(password))
-        : userToUpdate.hashedPassword;
-      profilePicture
-        ? (userToUpdate.profilePicture = profilePicture)
-        : userToUpdate.profilePicture;
-      await dataSource.manager.save(User, userToUpdate);
-      return userToUpdate;
-    } catch (err) {
+      const commentToUpdate = await dataSource.manager.findOneByOrFail(
+        Comment,
+        {
+          id,
+        }
+      );
+      userId !== 0 && (commentToUpdate.userId = userId);
+      pointOfInterestId !== 0 &&
+        (commentToUpdate.pointOfInterestId = pointOfInterestId);
+      updateDate !== null && (commentToUpdate.updateDate = updateDate);
+      text !== null && (commentToUpdate.text = text);
+      await dataSource.manager.save(Comment, commentToUpdate);
+      return commentToUpdate;
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }
 
   @Mutation(() => String)
-  async deleteUser(@Arg("id") id: number): Promise<String> {
+  async deleteComment(@Arg("id") id: number): Promise<String> {
     try {
-      await dataSource.manager.delete(User, { id });
-      return "user deleted";
-    } catch (err) {
+      await dataSource.manager.delete(Comment, { id });
+      return "comment deleted";
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }

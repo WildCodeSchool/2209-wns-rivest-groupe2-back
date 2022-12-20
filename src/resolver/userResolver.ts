@@ -6,7 +6,7 @@ import dataSource from "../utils";
 import { ApolloError } from "apollo-server";
 
 @InputType()
-class UserType {
+class CreateUserInput {
   @Field()
   username: string;
 
@@ -80,12 +80,14 @@ export class UserResolver {
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
     return await dataSource.manager.find(User, {
-      relations: { rates: true, comments: true },
+      relations: { rates: true },
     });
   }
 
   @Mutation(() => User)
-  async createUser(@Arg("data") data: UserType): Promise<User | ApolloError> {
+  async createUser(
+    @Arg("data") data: CreateUserInput
+  ): Promise<User | ApolloError> {
     const newUser = new User();
     newUser.username = data.username;
     newUser.email = data.email;
@@ -97,7 +99,7 @@ export class UserResolver {
       const userFromDB = await dataSource.manager.save(User, newUser);
       console.log(userFromDB);
       return userFromDB;
-    } catch (err) {
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }
@@ -119,29 +121,26 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username ? (userToUpdate.username = username) : userToUpdate.username;
-      email ? (userToUpdate.email = email) : userToUpdate.email;
-      firstname ? (userToUpdate.firstname = firstname) : userToUpdate.firstname;
-      lastname ? (userToUpdate.lastname = lastname) : userToUpdate.lastname;
-      password
-        ? (userToUpdate.hashedPassword = await argon2.hash(password))
-        : userToUpdate.hashedPassword;
-      profilePicture
-        ? (userToUpdate.profilePicture = profilePicture)
-        : userToUpdate.profilePicture;
+      username != null && (userToUpdate.username = username);
+      email != null && (userToUpdate.email = email);
+      firstname != null && (userToUpdate.firstname = firstname);
+      lastname != null && (userToUpdate.lastname = lastname);
+      password != null &&
+        (userToUpdate.hashedPassword = await argon2.hash(password));
+      profilePicture != null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
       return userToUpdate;
-    } catch (err) {
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }
 
   @Mutation(() => String)
-  async deleteUser(@Arg("id") id: number): Promise<String> {
+  async deleteUser(@Arg("id") id: number): Promise<String | ApolloError> {
     try {
       await dataSource.manager.delete(User, { id });
       return "user deleted";
-    } catch (err) {
+    } catch (err: any) {
       throw new ApolloError(err.message);
     }
   }
