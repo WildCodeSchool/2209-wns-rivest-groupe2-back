@@ -39,5 +39,5 @@ export class City {
   public country: Country;
 
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
-  public pointsOfInterest: PointOfInterest[];
+  public pointOfInterest: PointOfInterest[];
 }

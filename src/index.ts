@@ -1,14 +1,15 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server";
-import dataSource from "./utils";
+import dataSource from "./utils/datasource";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolver/userResolver";
+import { PointOfInterestResolver } from "./resolver/pointOfInterestResolver";
 
 const port = 5000;
 
 const start = async (): Promise<void> => {
   await dataSource.initialize();
-  const schema = await buildSchema({ resolvers: [UserResolver] });
+  const schema = await buildSchema({ resolvers: [UserResolver, PointOfInterestResolver]});
   const server = new ApolloServer({ schema });
 
   const { url }: { url: string } = await server.listen({ port });
