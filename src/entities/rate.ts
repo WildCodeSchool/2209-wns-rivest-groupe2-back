@@ -1,15 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Timestamp,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { User } from "./user";
 
-export enum rate {
+export enum rateNumbers {
   ONE = 1,
   TWO = 2,
   THREE = 3,
@@ -27,16 +21,16 @@ export class Rate {
   @Field()
   @Column({
     type: "enum",
-    enum: rate,
+    enum: rateNumbers,
     default: 4,
   })
-  rate: rate;
+  rate: rateNumbers;
 
   @Field()
   @Column({ type: "timestamp", nullable: true })
-  creationDate: Date;
+  createDate: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 

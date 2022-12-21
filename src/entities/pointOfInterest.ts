@@ -3,12 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  Timestamp,
   ManyToOne,
   Index,
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
-import { Point } from "geojson";
 import { City } from "./city";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
