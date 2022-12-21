@@ -7,7 +7,6 @@ import {
   Index,
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
-import { Geometry } from "geojson";
 import { Country } from "./country";
 import { PointOfInterest } from "./pointOfInterest";
 
