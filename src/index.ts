@@ -5,6 +5,7 @@ import { ApolloServer } from "apollo-server";
 import dataSource from "./utils";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolver/userResolver";
+import { CityResolver } from "./resolver/cityResolver";
 import { RateResolver } from "./resolver/rateResolver";
 import { CommentResolver } from "./resolver/commentResolver";
 
@@ -15,7 +16,7 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
   const schema = await buildSchema({
-    resolvers: [UserResolver, RateResolver, CommentResolver],
+    resolvers: [UserResolver, RateResolver, CommentResolver, CityResolver],
     authChecker: ({ context }) => {
       console.log("context", context);
       if (context.username === undefined) {
