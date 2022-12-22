@@ -10,7 +10,6 @@ import { City } from "./city";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
 import { Point } from "geojson";
-import { Day } from "./day";
 import { IPoi } from "../interfaces/IPoi";
 
 export enum POIType {
@@ -81,11 +80,61 @@ export class PointOfInterest implements IPoi {
   })
   priceRange: priceRange;
 
-  @Field(() => [Day], { nullable: true })
-  @OneToMany(() => Day, (day) => day.pointOfInterest, {
-    cascade: true,
-  })
-  days: Day[];
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenMonday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenThuesday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenWenesday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenThursday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenFriday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenSaturday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourOpenSunday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseMonday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseThuesday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseWenesday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseThursday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseFriday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseSaturday : string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  hourCloseSunday : string;
 
   @ManyToOne(() => City, (city) => city.pointOfInterest)
   public city: City;
