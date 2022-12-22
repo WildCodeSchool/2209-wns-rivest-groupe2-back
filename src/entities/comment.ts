@@ -1,18 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Timestamp,
-  ManyToMany,
-  JoinTable,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { User } from "./user";
 import { PointOfInterest } from "./pointOfInterest";
-// import { Comment } from "./comment";
-// import { Rate } from "./rate";
-// import { Image } from "./image";
 
 @ObjectType()
 @Entity()
@@ -29,7 +18,7 @@ export class Comment {
 
   @Field()
   @Column({ type: "timestamp", nullable: true })
-  creationDate: Date;
+  createDate: Date;
 
   @Field()
   @Column({ type: "timestamp", nullable: true })
