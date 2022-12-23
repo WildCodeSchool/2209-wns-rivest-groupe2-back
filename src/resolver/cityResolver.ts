@@ -24,13 +24,13 @@ class UpdatedCityType {
   @Field()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   name?: string;
 
   @Field({nullable:true})
   current_location?: string;
 
-  @Field()
+  @Field({ nullable: true })
   population?: number;
 
 }
@@ -45,16 +45,20 @@ export class CityResolver {
   }
 
   @Mutation(() => City)
-  async createCity(@Arg("data") data: CityType): Promise<City> {
+  async createCity(@Arg("data") data: CityType): Promise<City | ApolloError> {
     const newCity = new City();
     newCity.name = data.name;
     newCity.current_location = data.current_location;
     newCity.population = data.population;
     
-
+    try {
     const cityFromDB = await dataSource.manager.save(City, newCity);
     console.log(cityFromDB);
     return cityFromDB;
+    }
+    catch (err: any) {
+      throw new ApolloError(err.message);
+    }
   }
 
 @Mutation(()=>City)
