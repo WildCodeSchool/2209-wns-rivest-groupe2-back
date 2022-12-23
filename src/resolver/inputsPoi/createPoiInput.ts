@@ -18,8 +18,6 @@ export class CreatePoiInput {
 
   @Field(() => [Number], { nullable: true })
   coordinates: Point;
-  
-  creationDate: Date;
 
   @Field(() => [String], { nullable: true })
   pictureUrl: string;

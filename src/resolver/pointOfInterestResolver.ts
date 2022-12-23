@@ -54,7 +54,6 @@ export class PointOfInterestResolver {
       postal,
       type,
       coordinates,
-      creationDate,
       pictureUrl,
       websiteURL,
       description,
@@ -83,7 +82,6 @@ export class PointOfInterestResolver {
       postal != null && (pointOfInterestToUpdate.postal = postal);
       type != null && (pointOfInterestToUpdate.type = type);
       coordinates != null && (pointOfInterestToUpdate.coordinates = coordinates);
-      creationDate != null && (pointOfInterestToUpdate.creationDate = creationDate);
       pictureUrl != null && (pointOfInterestToUpdate.pictureUrl = pictureUrl);
       websiteURL != null && (pointOfInterestToUpdate.websiteURL = websiteURL);
       description != null && (pointOfInterestToUpdate.description = description);

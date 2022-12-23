@@ -51,12 +51,12 @@ class UpdateUserInput {
 export class UserResolver {
   @Query(() => String)
   async getToken(
-    @Arg("username") username: string,
+    @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<string> {
     try {
       const userFromDB = await dataSource.manager.findOneByOrFail(User, {
-        username,
+        email,
       });
       if (process.env.JWT_SECRET_KEY === undefined) {
         throw new Error();
@@ -64,7 +64,7 @@ export class UserResolver {
 
       if (await argon2.verify(userFromDB.hashedPassword, password)) {
         const token = jwt.sign(
-          { username: userFromDB.username },
+          { email: userFromDB.email },
           process.env.JWT_SECRET_KEY
         );
         return token;
@@ -126,7 +126,7 @@ export class UserResolver {
       firstname != null && (userToUpdate.firstname = firstname);
       lastname != null && (userToUpdate.lastname = lastname);
       password != null &&
-        (userToUpdate.hashedPassword = await argon2.hash(password));
+      (userToUpdate.hashedPassword = await argon2.hash(password));
       profilePicture != null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
       return userToUpdate;

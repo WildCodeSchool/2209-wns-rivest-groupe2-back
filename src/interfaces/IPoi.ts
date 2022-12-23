@@ -2,7 +2,7 @@ import {POIType,priceRange} from "../entities/pointOfInterest";
 import { Point } from "geojson";
 
 export interface IPoi {
-  id?: number;
+  id: number;
   name: string;
   address: string;
   postal: string;
