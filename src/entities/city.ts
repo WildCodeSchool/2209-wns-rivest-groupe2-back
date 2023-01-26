@@ -28,7 +28,7 @@ export class City {
     nullable: true,
     spatialFeatureType: "Point",
   })
-  current_location: string;
+  currentLocation?: string;
 
   @Field()
   @Column()
