@@ -1,8 +1,6 @@
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { City } from "../entities/city";
-import { Country } from "../entities/country";
-import { PointOfInterest } from "../entities/pointOfInterest";
-import dataSource from "../utils";
+import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 
 @InputType()
@@ -11,7 +9,7 @@ class CityType {
   name: string;
 
   @Field({ nullable: true })
-  current_location?: string;
+  currentLocation?: string;
 
   @Field()
   population: number;
@@ -26,7 +24,7 @@ class UpdatedCityType {
   name?: string;
 
   @Field({ nullable: true })
-  current_location?: string;
+  currentLocation?: string;
 
   @Field({ nullable: true })
   population?: number;
@@ -45,7 +43,7 @@ export class CityResolver {
   async createCity(@Arg("data") data: CityType): Promise<City | ApolloError> {
     const newCity = new City();
     newCity.name = data.name;
-    newCity.current_location = data.current_location;
+    newCity.currentLocation = data.currentLocation;
     newCity.population = data.population;
 
     try {
@@ -60,14 +58,14 @@ export class CityResolver {
   async updateCity(
     @Arg("data") data: UpdatedCityType
   ): Promise<City | ApolloError> {
-    const { id, name, current_location, population } = data;
+    const { id, name, currentLocation, population } = data;
     try {
       const cityToUpdate = await dataSource.manager.findOneByOrFail(City, {
         id,
       });
       name != null && (cityToUpdate.name = name);
-      current_location != null &&
-        (cityToUpdate.current_location = current_location);
+      currentLocation != null &&
+        (cityToUpdate.currentLocation = currentLocation);
       population != null && (cityToUpdate.population = population);
 
       await dataSource.manager.save(City, cityToUpdate);
