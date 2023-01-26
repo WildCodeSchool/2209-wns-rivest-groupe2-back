@@ -50,7 +50,6 @@ export class CityResolver {
 
     try {
       const cityFromDB = await dataSource.manager.save(City, newCity);
-      console.log(cityFromDB);
       return cityFromDB;
     } catch (err: any) {
       throw new ApolloError(err.message);
