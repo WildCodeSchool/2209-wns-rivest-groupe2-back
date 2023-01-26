@@ -84,12 +84,22 @@ export class UserResolver {
     });
   }
 
+  @Query(() => User)
+  async getUserById(@Arg("id") id: number): Promise<User> {
+    try {
+      return await dataSource.manager.findOneByOrFail(User, {id});
+    } catch (err: any) {
+      throw new ApolloError(err.message);
+    }
+  } 
+  
+  
   @Mutation(() => User)
   async createUser(
     @Arg("data") data: CreateUserInput
   ): Promise<User | ApolloError> {
     const newUser = new User();
-    newUser.username = data.username;
+    newUser.username = data.username; 
     newUser.email = data.email;
     newUser.firstname = data.firstname;
     newUser.lastname = data.lastname;
