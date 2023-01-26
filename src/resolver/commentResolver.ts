@@ -1,6 +1,6 @@
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { Comment } from "../entities/comment";
-import dataSource from "../utils";
+import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 
 @InputType()
