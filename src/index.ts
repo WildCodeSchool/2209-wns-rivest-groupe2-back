@@ -16,7 +16,12 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
   const schema = await buildSchema({
-    resolvers: [UserResolver, RateResolver, CommentResolver, PointOfInterestResolver],
+    resolvers: [
+      UserResolver,
+      RateResolver,
+      CommentResolver,
+      PointOfInterestResolver,
+    ],
     authChecker: ({ context }) => {
       console.log("context", context);
       if (context.email === undefined) {
@@ -27,7 +32,7 @@ const start = async (): Promise<void> => {
   const server = new ApolloServer({
     schema,
     context: ({ req }) => {
-      console.log('======= test :', req.headers.authorization)
+      //console.log("======= test :", req.headers.authorization);
       if (
         req.headers.authorization === undefined ||
         process.env.JWT_SECRET_KEY === undefined
@@ -37,12 +42,12 @@ const start = async (): Promise<void> => {
         try {
           //
           const bearer = req.headers.authorization.split("Bearer ")[1];
-          console.log(req.headers.authorization)
+          //console.log(req.headers.authorization);
           if (bearer.length > 0) {
             const user = jwt.verify(bearer, process.env.JWT_SECRET_KEY);
             return user;
           } else {
-            return {}; 
+            return {};
           }
           //
           // const user = jwt.verify(

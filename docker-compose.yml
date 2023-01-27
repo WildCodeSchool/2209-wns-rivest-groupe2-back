@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgis/postgis
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: admin1234
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  backend:
+    build: ../CityGuide-back
+    env_file:
+      - ./.env
+    volumes:
+      - ./src:/app/src
+    ports:
+      - 5000:5000
+    healthcheck:
+      test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ../CityGuide-front
+    volumes:
+      - ../CityGuide-front/src:/app/src
+    ports:
+      - 3000:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
