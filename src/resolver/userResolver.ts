@@ -4,7 +4,7 @@ import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
-import { Validate } from "../utils/regex";
+import { Regex } from "../utils/userRegex";
 
 @InputType({ description: "Update User data" })
 class UpdateUserInput {
@@ -72,7 +72,7 @@ export class UserResolver {
     @Arg("password") password: string
   ): Promise<string> {
     try {
-      if (!Validate.email(email) || !Validate.password(password)) {
+      if (!Regex.email(email) || !Regex.password(password)) {
         throw Error("Invalid email, password or pseudo");
       }
       if (process.env.JWT_SECRET_KEY === undefined) {
