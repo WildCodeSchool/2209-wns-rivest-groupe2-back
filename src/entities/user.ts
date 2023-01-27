@@ -17,27 +17,28 @@ export class User {
   id: number;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   email: string;
 
-  @Field()
-  @Column({ unique: true })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   username: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({
     type: "enum",
     enum: UserType,
     default: UserType.FREEUSER,
+    nullable: true
   })
   type: UserType;
 
-  @Field()
-  @Column()
-  firstname: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  firstname?: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   lastname: string;
 
   @Field()
@@ -46,7 +47,7 @@ export class User {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  profilePicture: string;
+  profilePicture?: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)
   public comments!: Comment[];
