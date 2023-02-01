@@ -4,17 +4,12 @@ import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
-import { City } from "../entities/city";
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
-    const allPois = await dataSource.manager.find(PointOfInterest, {
-      relations: {
-        city: true,
-      },
-    });
+    const allPois = await dataSource.manager.find(PointOfInterest);
     return allPois;
   }
 
@@ -33,32 +28,11 @@ export class PointOfInterestResolver {
     newPoi.websiteURL = data.websiteURL;
     newPoi.description = data.description;
     newPoi.priceRange = data.priceRange;
-    newPoi.hourOpenMonday = data.hourOpenMonday;
-    newPoi.hourOpenThuesday = data.hourOpenThuesday;
-    newPoi.hourOpenWenesday = data.hourOpenWenesday;
-    newPoi.hourOpenThursday = data.hourOpenThursday;
-    newPoi.hourOpenFriday = data.hourOpenFriday;
-    newPoi.hourOpenSaturday = data.hourOpenSaturday;
-    newPoi.hourOpenSunday = data.hourOpenSunday;
-    newPoi.hourCloseMonday = data.hourCloseMonday;
-    newPoi.hourCloseThuesday = data.hourCloseThuesday;
-    newPoi.hourCloseWenesday = data.hourCloseWenesday;
-    newPoi.hourCloseThursday = data.hourCloseThursday;
-    newPoi.hourCloseFriday = data.hourCloseFriday;
-    newPoi.hourCloseSaturday = data.hourCloseSaturday;
-    newPoi.hourCloseSunday = data.hourCloseSunday;
+    newPoi.daysOpen = data.daysOpen;
+    newPoi.hoursOpen = data.hoursOpen;
+    newPoi.hoursClose = data.hoursClose;
+    newPoi.city = data.city;
     const savedPoi = await dataSource.manager.save(PointOfInterest, newPoi);
-    if (savedPoi !== null) {
-      const cityToAdd = await dataSource.manager.findOneByOrFail(City, {
-        name: data.city,
-      });
-      if (cityToAdd === null) {
-        const newCity = await dataSource.manager.save(City, {
-          name: data.city,
-        });
-        console.log(newCity);
-      }
-    }
     return savedPoi;
   }
 
@@ -77,20 +51,10 @@ export class PointOfInterestResolver {
       websiteURL,
       description,
       priceRange,
-      hourOpenMonday,
-      hourOpenThuesday,
-      hourOpenWenesday,
-      hourOpenThursday,
-      hourOpenFriday,
-      hourOpenSaturday,
-      hourOpenSunday,
-      hourCloseMonday,
-      hourCloseThuesday,
-      hourCloseWenesday,
-      hourCloseThursday,
-      hourCloseFriday,
-      hourCloseSaturday,
-      hourCloseSunday,
+      city,
+      daysOpen,
+      hoursOpen,
+      hoursClose,
     } = data;
     try {
       const pointOfInterestToUpdate = await dataSource.manager.findOneByOrFail(
@@ -110,34 +74,10 @@ export class PointOfInterestResolver {
       description != null &&
         (pointOfInterestToUpdate.description = description);
       priceRange != null && (pointOfInterestToUpdate.priceRange = priceRange);
-      hourOpenMonday != null &&
-        (pointOfInterestToUpdate.hourOpenMonday = hourOpenMonday);
-      hourOpenThuesday != null &&
-        (pointOfInterestToUpdate.hourOpenThuesday = hourOpenThuesday);
-      hourOpenWenesday != null &&
-        (pointOfInterestToUpdate.hourOpenWenesday = hourOpenWenesday);
-      hourOpenThursday != null &&
-        (pointOfInterestToUpdate.hourOpenThursday = hourOpenThursday);
-      hourOpenFriday != null &&
-        (pointOfInterestToUpdate.hourOpenFriday = hourOpenFriday);
-      hourOpenSaturday != null &&
-        (pointOfInterestToUpdate.hourOpenSaturday = hourOpenSaturday);
-      hourOpenSunday != null &&
-        (pointOfInterestToUpdate.hourOpenSunday = hourOpenSunday);
-      hourCloseMonday != null &&
-        (pointOfInterestToUpdate.hourCloseMonday = hourCloseMonday);
-      hourCloseThuesday != null &&
-        (pointOfInterestToUpdate.hourCloseThuesday = hourCloseThuesday);
-      hourCloseWenesday != null &&
-        (pointOfInterestToUpdate.hourCloseWenesday = hourCloseWenesday);
-      hourCloseThursday != null &&
-        (pointOfInterestToUpdate.hourCloseThursday = hourCloseThursday);
-      hourCloseFriday != null &&
-        (pointOfInterestToUpdate.hourCloseFriday = hourCloseFriday);
-      hourCloseSaturday != null &&
-        (pointOfInterestToUpdate.hourCloseSaturday = hourCloseSaturday);
-      hourCloseSunday != null &&
-        (pointOfInterestToUpdate.hourCloseSunday = hourCloseSunday);
+      city != null && (pointOfInterestToUpdate.city = city);
+      daysOpen != null && (pointOfInterestToUpdate.daysOpen = daysOpen);
+      hoursOpen != null && (pointOfInterestToUpdate.hoursOpen = hoursOpen);
+      hoursClose != null && (pointOfInterestToUpdate.hoursClose = hoursClose);
       await dataSource.manager.save(PointOfInterest, pointOfInterestToUpdate);
       return pointOfInterestToUpdate;
     } catch (err: any) {

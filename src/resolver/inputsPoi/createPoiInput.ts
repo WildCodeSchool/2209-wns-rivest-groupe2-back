@@ -2,12 +2,6 @@ import { InputType, Field } from "type-graphql";
 import { POIType, priceRange } from "../../entities/pointOfInterest";
 import { Point } from "geojson";
 
-@InputType({ description: "New City data" })
-export class NewCityInput {
-  @Field()
-  name: string;
-}
-
 @InputType({ description: "Create Poi data" })
 export class CreatePoiInput {
   @Field({ nullable: true })
@@ -41,47 +35,14 @@ export class CreatePoiInput {
   priceRange: priceRange;
 
   @Field({ nullable: true })
-  hourOpenMonday: string;
-
-  @Field({ nullable: true })
-  hourOpenThuesday: string;
-
-  @Field({ nullable: true })
-  hourOpenWenesday: string;
-
-  @Field({ nullable: true })
-  hourOpenThursday: string;
-
-  @Field({ nullable: true })
-  hourOpenFriday: string;
-
-  @Field({ nullable: true })
-  hourOpenSaturday: string;
-
-  @Field({ nullable: true })
-  hourOpenSunday: string;
-
-  @Field({ nullable: true })
-  hourCloseMonday: string;
-
-  @Field({ nullable: true })
-  hourCloseThuesday: string;
-
-  @Field({ nullable: true })
-  hourCloseWenesday: string;
-
-  @Field({ nullable: true })
-  hourCloseThursday: string;
-
-  @Field({ nullable: true })
-  hourCloseFriday: string;
-
-  @Field({ nullable: true })
-  hourCloseSaturday: string;
-
-  @Field({ nullable: true })
-  hourCloseSunday: string;
-
-  @Field({ nullable: true })
   city: string;
+
+  @Field(() => [String], { nullable: true })
+  daysOpen: string;
+
+  @Field(() => [String], { nullable: true })
+  hoursOpen: string;
+
+  @Field(() => [String], { nullable: true })
+  hoursClose: string;
 }
