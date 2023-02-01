@@ -1,10 +1,36 @@
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
-import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Field,
+  InputType,
+  Mutation,
+  Query,
+  Resolver,
+  ObjectType,
+} from "type-graphql";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  token: string;
+
+  @Field(() => User)
+  userFromDB: User;
+}
+
+@ObjectType()
+class RegisterResponse {
+  @Field()
+  token: string;
+
+  @Field(() => User)
+  userFromDB: User;
+}
 
 @InputType({ description: "Update User data" })
 class UpdateUserInput {
@@ -40,11 +66,20 @@ export class UserResolver {
     });
   }
 
-  @Query(() => String)
+  @Query(() => User)
+  async getUserById(@Arg("id") id: number): Promise<User> {
+    try {
+      return await dataSource.manager.findOneByOrFail(User, {id});
+    } catch (err: any) {
+      throw new ApolloError(err.message);
+    }
+  } 
+
+  @Query(() => LoginResponse)
   async getToken(
     @Arg("email") email: string,
     @Arg("password") password: string
-  ): Promise<string> {
+  ): Promise<LoginResponse> {
     try {
       const userFromDB = await dataSource.manager.findOneByOrFail(User, {
         email,
@@ -58,7 +93,7 @@ export class UserResolver {
           { email: userFromDB.email },
           process.env.JWT_SECRET_KEY
         );
-        return token;
+        return { token, userFromDB };
       } else {
         throw new Error();
       }
@@ -68,21 +103,11 @@ export class UserResolver {
   }
 
 
-
-  @Query(() => User)
-  async getUserById(@Arg("id") id: number): Promise<User> {
-    try {
-      return await dataSource.manager.findOneByOrFail(User, {id});
-    } catch (err: any) {
-      throw new ApolloError(err.message);
-    }
-  } 
-  
-  @Mutation(() => String)
+  @Mutation(() => RegisterResponse)
   async createUser(
     @Arg("email") email: string,
     @Arg("password") password: string
-  ): Promise<string> {
+  ): Promise<RegisterResponse> {
     try {
       if (!Regex.email(email) || !Regex.password(password)) {
         throw Error("Invalid email, password or pseudo");
@@ -101,7 +126,7 @@ export class UserResolver {
         { email: userFromDB.email },
         process.env.JWT_SECRET_KEY
       );
-      return token;
+      return { token, userFromDB };
     } catch (error) {
       throw new Error("Error try again with an other email or pseudo");
     }
@@ -148,41 +173,3 @@ export class UserResolver {
     }
   }
 }
-
-// @InputType()
-// class CreateUserInput {
-//   @Field({ nullable: true })
-//   username: string;
-
-//   @Field({ nullable: true })
-//   email: string;
-
-//   @Field({ nullable: true })
-//   firstname: string;
-
-//   @Field
-//   lastname: string;
-
-//   @Field()
-//   password: string;
-// }
-
-// @Mutation(() => User)
-// async createUser(
-//   @Arg("data") data: CreateUserInput
-// ): Promise<User | ApolloError> {
-//   const newUser = new User();
-//   newUser.username = data.username;
-//   newUser.email = data.email;
-//   newUser.firstname = data.firstname;
-//   newUser.lastname = data.lastname;
-//   newUser.hashedPassword = await argon2.hash(data.password);
-
-//   try {
-//     const userFromDB = await dataSource.manager.save(User, newUser);
-//     console.log(userFromDB);
-//     return userFromDB;
-//   } catch (err: any) {
-//     throw new ApolloError(err.message);
-//   }
-// }
