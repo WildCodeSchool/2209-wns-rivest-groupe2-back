@@ -66,13 +66,6 @@ export class UserResolver {
     }
   }
 
-  @Query(() => [User])
-  async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User, {
-      relations: { rates: true },
-    });
-  }
-
   @Query(() => User)
   async getUserById(@Arg("id") id: number): Promise<User> {
     try {
