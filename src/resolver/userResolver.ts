@@ -66,6 +66,22 @@ export class UserResolver {
     }
   }
 
+  @Query(() => [User])
+  async getAllUsers(): Promise<User[]> {
+    return await dataSource.manager.find(User, {
+      relations: { rates: true },
+    });
+  }
+
+  @Query(() => User)
+  async getUserById(@Arg("id") id: number): Promise<User> {
+    try {
+      return await dataSource.manager.findOneByOrFail(User, {id});
+    } catch (err: any) {
+      throw new ApolloError(err.message);
+    }
+  } 
+  
   @Mutation(() => String)
   async createUser(
     @Arg("email") email: string,
