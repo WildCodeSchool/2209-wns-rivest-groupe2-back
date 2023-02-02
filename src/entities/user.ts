@@ -39,7 +39,7 @@ export class User {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  lastname: string;
+  lastname?: string;
 
   @Field()
   @Column()
