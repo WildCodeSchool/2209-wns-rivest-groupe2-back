@@ -29,7 +29,7 @@ export class User {
     type: "enum",
     enum: UserType,
     default: UserType.FREEUSER,
-    nullable: true
+    nullable: true,
   })
   type: UserType;
 

@@ -30,9 +30,9 @@ export class City {
   })
   currentLocation?: string;
 
-  @Field()
-  @Column()
-  population: number;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  population?: number;
 
   @ManyToOne(() => Country, (country) => country.cities)
   public country: Country;

@@ -30,6 +30,8 @@ services:
         condition: service_healthy
   frontend:
     build: ../front
+    env_file:
+      - ../front/.env
     volumes:
       - ../front/src:/app/src
     ports:
@@ -42,6 +44,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-      
+
 volumes:
   postgres:
