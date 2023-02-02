@@ -5,8 +5,8 @@ import { Rate } from "./rate";
 
 export enum UserType {
   ADMIN = "admin",
-  FREEUSER = "free user",
-  PAIDUSER = "paid user",
+  FREEUSER = "freeUser",
+  PAIDUSER = "paidUser",
 }
 
 @ObjectType()
@@ -29,7 +29,7 @@ export class User {
     type: "enum",
     enum: UserType,
     default: UserType.FREEUSER,
-    nullable: true
+    nullable: true,
   })
   type: UserType;
 
