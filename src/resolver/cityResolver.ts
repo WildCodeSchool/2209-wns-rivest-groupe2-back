@@ -11,8 +11,8 @@ class CityType {
   @Field({ nullable: true })
   currentLocation?: string;
 
-  @Field()
-  population: number;
+  @Field({ nullable: true })
+  population?: number;
 }
 
 @InputType({ description: "update city data" })

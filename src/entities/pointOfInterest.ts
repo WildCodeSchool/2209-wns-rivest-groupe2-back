@@ -1,12 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
-import { City } from "./city";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
 import { Point } from "geojson";
@@ -14,8 +7,11 @@ import { IPoi } from "../interfaces/IPoi";
 
 export enum POIType {
   RESTAURANT = "restaurant",
+  FASTFOOD = "fast-food",
+  BAR = "bar",
   PLACEOFRELIGION = "lieu de culte",
-  MUSEUM = "musée",
+  HOSTEL = "hotel",
+  MUSEUM = "musee",
 }
 
 export enum priceRange {
@@ -82,62 +78,22 @@ export class PointOfInterest implements IPoi {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  hourOpenMonday : string;
+  city: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenThuesday : string;
+  @Field(() => [String], { nullable: true })
+  @Column({ array: true, nullable: true })
+  daysOpen: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenWenesday : string;
+  @Field(() => [String], { nullable: true })
+  @Column({ array: true, nullable: true })
+  hoursOpen: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenThursday : string;
+  @Field(() => [String], { nullable: true })
+  @Column({ array: true, nullable: true })
+  hoursClose: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenFriday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenSaturday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourOpenSunday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseMonday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseThuesday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseWenesday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseThursday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseFriday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseSaturday : string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  hourCloseSunday : string;
-
-  @ManyToOne(() => City, (city) => city.pointOfInterest)
-  public city: City;
+  /*   @ManyToOne(() => City, (city) => city.pointOfInterest)
+  public city: City; */
 
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments!: Comment[];

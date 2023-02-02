@@ -35,44 +35,14 @@ export class CreatePoiInput {
   priceRange: priceRange;
 
   @Field({ nullable: true })
-  hourOpenMonday : string;
+  city: string;
 
-  @Field({ nullable: true })
-  hourOpenThuesday : string;
+  @Field(() => [String], { nullable: true })
+  daysOpen: string;
 
-  @Field({ nullable: true })
-  hourOpenWenesday : string;
+  @Field(() => [String], { nullable: true })
+  hoursOpen: string;
 
-  @Field({ nullable: true })
-  hourOpenThursday : string;
-
-  @Field({ nullable: true })
-  hourOpenFriday : string;
-
-  @Field({ nullable: true })
-  hourOpenSaturday : string;
-
-  @Field({ nullable: true })
-  hourOpenSunday : string;
-
-  @Field({ nullable: true })
-  hourCloseMonday : string;
-
-  @Field({ nullable: true })
-  hourCloseThuesday : string;
-
-  @Field({ nullable: true })
-  hourCloseWenesday : string;
-
-  @Field({ nullable: true })
-  hourCloseThursday : string;
-
-  @Field({ nullable: true })
-  hourCloseFriday : string;
-
-  @Field({ nullable: true })
-  hourCloseSaturday : string;
-
-  @Field({ nullable: true })
-  hourCloseSunday : string;
+  @Field(() => [String], { nullable: true })
+  hoursClose: string;
 }
