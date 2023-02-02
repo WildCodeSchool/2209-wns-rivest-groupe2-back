@@ -5,8 +5,8 @@ import { Rate } from "./rate";
 
 export enum UserType {
   ADMIN = "admin",
-  FREEUSER = "free user",
-  PAIDUSER = "paid user",
+  FREEUSER = "freeUser",
+  PAIDUSER = "paidUser",
 }
 
 @ObjectType()
