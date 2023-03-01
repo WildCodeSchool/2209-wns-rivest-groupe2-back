@@ -20,6 +20,7 @@ services:
       - ./src:/app/src
     ports:
       - 5000:5000
+    command: npm run dev
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
       interval: 5s

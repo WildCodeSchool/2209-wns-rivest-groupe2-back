@@ -11,10 +11,10 @@ dotenv.config();
 
 const dataSource = new DataSource({
   type: "postgres",
-  host: "db",
+  host: "dbtest",
   port: 5432,
   username: "postgres",
-  password: process.env.PWD_POSTGRES,
+  password: "example",
   database: "postgres",
   synchronize: true,
   entities: [City, Comment, Country, PointOfInterest, Rate, User],

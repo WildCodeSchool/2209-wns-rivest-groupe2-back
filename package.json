@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node-dev ./src/index.ts"
+    "start": "NODE_ENV=production node -r dotenv/config build/index.js",
+    "dev": "NODE_ENV=development ts-node-dev src/index.ts",
+    "docker": "docker compose -f docker-compose.dev.yml up --build",
+    "integration-test": "docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner"
   },
   "author": "",
   "license": "ISC",
