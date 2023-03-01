@@ -58,7 +58,7 @@ class UpdateUserInput {
 
 @Resolver(User)
 export class UserResolver {
-  
+
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
     return await dataSource.manager.find(User, {
@@ -69,11 +69,11 @@ export class UserResolver {
   @Query(() => User)
   async getUserById(@Arg("id") id: number): Promise<User> {
     try {
-      return await dataSource.manager.findOneByOrFail(User, {id});
+      return await dataSource.manager.findOneByOrFail(User, { id });
     } catch (err: any) {
       throw new ApolloError(err.message);
     }
-  } 
+  }
 
   @Query(() => LoginResponse)
   async getToken(

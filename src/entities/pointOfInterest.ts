@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
+import { User } from "./user";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -56,6 +57,24 @@ export class PointOfInterest implements IPoi {
   @Column({ type: "timestamp", nullable: true })
   creationDate: Date;
 
+  @Field(() => Number, { nullable: true })
+  public averageRate(): number | null {
+    if (this.rates === null || this.rates === undefined || this.rates.length === 0) {
+      return null;
+    }
+
+    const sum = this.rates.reduce((acc: number, rate: Rate) => acc + rate.rate, 0);
+    const average = sum / this.rates.length;
+
+    return Number(average.toFixed(1));
+  }
+
+  public addRate(rate: Rate): void {
+    this.rates.push(rate);
+  }
+
+
+
   @Field(() => [String], { nullable: true })
   @Column({ array: true, nullable: true })
   pictureUrl: string;
@@ -94,10 +113,15 @@ export class PointOfInterest implements IPoi {
 
   /*   @ManyToOne(() => City, (city) => city.pointOfInterest)
   public city: City; */
+  @ManyToMany(() => User, (user) => user.ratedPOIs)
+  raters: User[];
+
 
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
-  public comments!: Comment[];
+  public comments: Comment[];
 
   @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
-  public rates!: Rate[];
+  public rates: Rate[];
+
+
 }
