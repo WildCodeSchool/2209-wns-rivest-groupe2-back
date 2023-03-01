@@ -9,6 +9,7 @@ import { CityResolver } from "./resolver/cityResolver";
 import { PointOfInterestResolver } from "./resolver/pointOfInterestResolver";
 import { RateResolver } from "./resolver/rateResolver";
 import { CommentResolver } from "./resolver/commentResolver";
+import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
 
 dotenv.config();
 
@@ -17,7 +18,14 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
   const schema = await buildSchema({
-    resolvers: [UserResolver, RateResolver, CommentResolver, CityResolver, PointOfInterestResolver],
+    resolvers: [
+      UserResolver,
+      RateResolver,
+      CommentResolver,
+      CityResolver,
+      PointOfInterestResolver,
+      DeleteAllEntitiesResolver,
+    ],
     authChecker: ({ context }) => {
       console.log("context", context);
       if (context.email === undefined) {

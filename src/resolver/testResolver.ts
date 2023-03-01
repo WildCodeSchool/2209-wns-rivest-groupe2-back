@@ -12,7 +12,7 @@ import dataSource from "../utils/datasource";
 export class DeleteAllEntitiesResolver {
   @Mutation(() => String)
   async deleteAllEntities(): Promise<string> {
-    if (process.env.DB !== "dbtest") {
+    if (process.env.NODE_ENV !== "test") {
       throw new Error("This resolver is only allowed in test environments");
     }
 
@@ -29,7 +29,7 @@ export class DeleteAllEntitiesResolver {
 
   /* @Mutation(() => String)
   async upgradeUserToAdmin(@Arg("email") email: string) {
-    if (process.env.DB !== "dbtest") {
+    if (process.env.NODE_ENV !== "test") {
       throw new Error("This resolver is only allowed in test environments");
     }
 

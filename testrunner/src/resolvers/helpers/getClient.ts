@@ -3,7 +3,7 @@ import fetch from "cross-fetch";
 
 const client = new ApolloClient({
   link: new HttpLink({
-    uri: "http://127.0.0.1:5000/",
+    uri: "http://backend:5000/",
     fetch,
   }),
   cache: new InMemoryCache(),

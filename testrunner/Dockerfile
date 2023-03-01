@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package.json ./
 COPY jest.config.js ./
-RUN npm install
+RUN npm i
 
 COPY tsconfig.json ./
 COPY ./src ./src

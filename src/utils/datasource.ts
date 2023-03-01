@@ -9,12 +9,18 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+console.log(process.env.NODE_ENV);
+
+const dbHost = process.env.NODE_ENV === "test" ? "dbtest" : "db";
+const dbPassword =
+  process.env.NODE_ENV === "test" ? "example" : process.env.PWD_POSTGRES;
+
 const dataSource = new DataSource({
   type: "postgres",
-  host: "dbtest",
+  host: dbHost,
   port: 5432,
   username: "postgres",
-  password: "example",
+  password: dbPassword,
   database: "postgres",
   synchronize: true,
   entities: [City, Comment, Country, PointOfInterest, Rate, User],
