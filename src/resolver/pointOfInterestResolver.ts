@@ -1,4 +1,4 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, Authorized } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
@@ -13,6 +13,7 @@ export class PointOfInterestResolver {
     return allPois;
   }
 
+  @Authorized()
   @Mutation(() => PointOfInterest)
   async createPoi(
     @Arg("data") data: CreatePoiInput
@@ -36,6 +37,7 @@ export class PointOfInterestResolver {
     return savedPoi;
   }
 
+  @Authorized()
   @Mutation(() => PointOfInterest)
   async updatePoi(
     @Arg("data") data: UpdatePoiInput
@@ -85,6 +87,7 @@ export class PointOfInterestResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => String)
   async deletePoi(@Arg("id") id: number): Promise<String> {
     try {
