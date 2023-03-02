@@ -1,4 +1,4 @@
-import { ITestUser } from "../../../../interfaces/entities/testUserInterface";
+import { ITestUser } from "../../../../interfaces/testUserInterface";
 import client from "../../getClient";
 import { CREATE_USER } from "../../graphql/mutations/user/createUser";
 
@@ -7,10 +7,10 @@ export const generateTestUser = async (): Promise<ITestUser> => {
     mutation: CREATE_USER,
     variables: {
       email: `test${Math.floor(Math.random() * 1000000)}@test.com`,
-      password: "test",
+      password: "testTest123!",
     },
     fetchPolicy: "no-cache",
   });
 
-  return res.data?.createUser;
+  return res.data?.createUser.userFromDB;
 };

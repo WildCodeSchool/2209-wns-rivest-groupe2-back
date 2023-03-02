@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client/core";
 
-export const GET_USER_BY_ID = gql`
-  query GetUserById($getUserByIdId: Float!) {
-    getUserById(id: $getUserByIdId) {
+export const UPDATE_USER = gql`
+  mutation UpdateUser($data: UpdateUserInput!) {
+    updateUser(data: $data) {
       id
       email
       username
