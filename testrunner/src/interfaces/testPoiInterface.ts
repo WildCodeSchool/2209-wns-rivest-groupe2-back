@@ -1,5 +1,19 @@
-import { POIType, priceRange } from "../entities/pointOfInterest";
 import { Point } from "geojson";
+
+enum POIType {
+  RESTAURANT = "restaurant",
+  FASTFOOD = "fast-food",
+  BAR = "bar",
+  PLACEOFRELIGION = "lieu de culte",
+  HOSTEL = "hotel",
+  MUSEUM = "musee",
+}
+
+enum priceRange {
+  LOW = "$",
+  MEDIUM = "$$",
+  HIGH = "$$$",
+}
 
 export interface IPoi {
   id: number;

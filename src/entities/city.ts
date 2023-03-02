@@ -28,11 +28,11 @@ export class City {
     nullable: true,
     spatialFeatureType: "Point",
   })
-  current_location: string;
+  currentLocation?: string;
 
-  @Field()
-  @Column()
-  population: number;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  population?: number;
 
   @ManyToOne(() => Country, (country) => country.cities)
   public country: Country;
