@@ -1,95 +1,104 @@
-import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
-import { Comment } from "../entities/comment";
-import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
-
-@InputType()
-class CommentType {
-  @Field()
-  userId: number;
-
-  @Field()
-  pointOfInterestId: number;
-
-  @Field()
-  text: string;
-}
-
-@InputType({ description: "Update User data" })
-class UpdateCommentInput {
-  @Field()
-  id: number;
-
-  @Field({ nullable: true })
-  userId: number;
-
-  @Field({})
-  pointOfInterestId: number;
-
-  @Field({ nullable: true })
-  updateDate: Date;
-
-  @Field({ nullable: true })
-  text: string;
-}
+import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Comment } from "../entities/comment";
+import { PointOfInterest } from "../entities/pointOfInterest";
+import { User } from "../entities/user";
+import dataSource from "../utils/datasource";
 
 @Resolver(Comment)
 export class CommentResolver {
-  @Query(() => [Comment])
-  async getAllComments(): Promise<Comment[]> {
-    return await dataSource.manager.find(Comment);
+  @Query(() => Comment, { nullable: true })
+  async getUserCommentForPOI(
+    @Arg("poiId", () => Number) poiId: number,
+    @Arg("userId", () => Number) userId: number,
+  ): Promise<Comment | null> {
+    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
+    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+
+    if (poi == null) {
+      throw new ApolloError(`PointID of interest not found`);
+    }
+
+    if (user == null) {
+      throw new ApolloError(`UserID not found`);
+    }
+
+    const userComment = await dataSource.manager.findOne(Comment, {
+      where: {
+        user: { id: user.id },
+        pointOfInterest: { id: poi.id },
+      },
+    });
+
+    return userComment ?? null;
+  }
+
+
+  @Mutation(() => Comment)
+  async commentPOI(
+    @Arg("poiId", () => Number) poiId: number,
+    @Arg("userId", () => Number) userId: number,
+    @Arg("comment") commentInput: string
+  ): Promise<Comment | ApolloError> {
+    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
+    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+    if (poi == null) {
+      throw new ApolloError(`PointID of interest not found`);
+    }
+
+    if (user == null) {
+      throw new ApolloError(`UserID not found`);
+    }
+
+    const comment = new Comment();
+    comment.text = commentInput;
+    comment.user = user;
+    comment.pointOfInterest = poi;
+    comment.createDate = new Date();
+
+    try {
+      const savedComment = await dataSource.manager.save(comment);
+      return savedComment;
+    } catch (error: any) {
+      throw new ApolloError(error.message);
+    }
   }
 
   @Mutation(() => Comment)
-  async createComment(
-    @Arg("data") data: CommentType
+  async updatePOIComment(
+    @Arg("poiId", () => Number) poiId: number,
+    @Arg("userId", () => Number) userId: number,
+    @Arg("comment") commentInput: string
   ): Promise<Comment | ApolloError> {
-    const newComment = new Comment();
-    newComment.userId = data.userId;
-    newComment.pointOfInterestId = data.pointOfInterestId;
-    newComment.createDate = new Date();
-    newComment.text = data.text;
+    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
+    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+    if (poi == null) {
+      throw new ApolloError(`PointID of interest not found`);
+    }
+
+    if (user == null) {
+      throw new ApolloError(`UserID not found`);
+    }
+
+    const comment = await dataSource.manager.findOne(Comment, {
+      where: {
+        user: { id: user.id },
+        pointOfInterest: { id: poi.id },
+      },
+    });
+
+    if (comment == null) {
+      throw new ApolloError(`Comment not found for the user and POI`);
+    }
+
+    comment.text = commentInput;
 
     try {
-      const commentFromDB = await dataSource.manager.save(Comment, newComment);
-      console.log(commentFromDB);
-      return commentFromDB;
-    } catch (err: any) {
-      throw new ApolloError(err.message);
+      const updatedComment = await dataSource.manager.save(comment);
+      return updatedComment;
+    } catch (error: any) {
+      throw new ApolloError(error.message);
     }
   }
 
-  @Mutation(() => Comment)
-  async updateComment(
-    @Arg("data") data: UpdateCommentInput
-  ): Promise<Comment | ApolloError> {
-    const { id, userId, pointOfInterestId, updateDate, text } = data;
-    try {
-      const commentToUpdate = await dataSource.manager.findOneByOrFail(
-        Comment,
-        {
-          id,
-        }
-      );
-      userId !== 0 && (commentToUpdate.userId = userId);
-      pointOfInterestId !== 0 &&
-        (commentToUpdate.pointOfInterestId = pointOfInterestId);
-      updateDate !== null && (commentToUpdate.updateDate = updateDate);
-      text !== null && (commentToUpdate.text = text);
-      await dataSource.manager.save(Comment, commentToUpdate);
-      return commentToUpdate;
-    } catch (err: any) {
-      throw new ApolloError(err.message);
-    }
-  }
-
-  @Mutation(() => String)
-  async deleteComment(@Arg("id") id: number): Promise<String> {
-    try {
-      await dataSource.manager.delete(Comment, { id });
-      return "comment deleted";
-    } catch (err: any) {
-      throw new ApolloError(err.message);
-    }
-  }
 }

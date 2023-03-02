@@ -69,10 +69,6 @@ export class PointOfInterest implements IPoi {
     return Number(average.toFixed(1));
   }
 
-  public addRate(rate: Rate): void {
-    this.rates.push(rate);
-  }
-
 
 
   @Field(() => [String], { nullable: true })
@@ -122,6 +118,4 @@ export class PointOfInterest implements IPoi {
 
   @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
   public rates: Rate[];
-
-
 }

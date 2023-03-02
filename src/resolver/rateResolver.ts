@@ -12,26 +12,17 @@ export class RateResolver {
     @Arg("poiId", () => Number) poiId: number,
     @Arg("userId", () => Number) userId: number,
   ): Promise<Rate | null> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
-    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
-
-    if (poi == null) {
-      throw new ApolloError(`PointID of interest not found`);
-    }
-
-    if (user == null) {
-      throw new ApolloError(`UserID not found`);
-    }
-
     const userRate = await dataSource.manager.findOne(Rate, {
       where: {
-        user: { id: user.id },
-        pointOfInterest: { id: poi.id },
+        user: { id: userId },
+        pointOfInterest: { id: poiId },
       },
+      relations: ["user", "pointOfInterest"],
     });
 
     return userRate ?? null;
   }
+
 
 
   @Mutation(() => Rate)

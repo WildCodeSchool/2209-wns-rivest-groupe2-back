@@ -1,12 +1,48 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
+import { Rate } from "../entities/rate";
+
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
+  @FieldResolver(() => [Rate])
+  async getRates(@Root() poi: PointOfInterest): Promise<Rate[]> {
+    const poiWithRates = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id: poi.id },
+      relations: ["rates"],
+    });
+
+    if (poiWithRates == null) {
+      return [];
+    }
+
+    return poiWithRates?.rates ?? [];
+  }
+
+
+
+
+  @Query(() => PointOfInterest)
+  async getPOIbyId(
+    @Arg("id") id: number,
+  ): Promise<PointOfInterest | null> {
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id },
+      relations: ["rates"],
+    });
+
+    if (poi == null) {
+      throw new ApolloError(`PointID of interest not found`);
+    }
+
+    return poi;
+  }
+
+
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
     const allPois = await dataSource.manager.find(PointOfInterest);
