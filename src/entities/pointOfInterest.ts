@@ -56,6 +56,18 @@ export class PointOfInterest implements IPoi {
   @Column({ type: "timestamp", nullable: true })
   creationDate: Date;
 
+  @Field(() => Number, { nullable: true })
+  public averageRate(): number | null {
+    if (this.rates === null || this.rates === undefined || this.rates.length === 0) {
+      return null;
+    }
+
+    const sum = this.rates.reduce((acc: number, rate: Rate) => acc + rate.rate, 0);
+    const average = sum / this.rates.length;
+
+    return Number(average.toFixed(1));
+  }
+
   @Field(() => [String], { nullable: true })
   @Column({ array: true, nullable: true })
   pictureUrl: string;
@@ -96,8 +108,8 @@ export class PointOfInterest implements IPoi {
   public city: City; */
 
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
-  public comments!: Comment[];
+  public comments: Comment[];
 
   @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
-  public rates!: Rate[];
+  public rates: Rate[];
 }

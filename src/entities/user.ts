@@ -17,7 +17,7 @@ export class User {
   id: number;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Field({ nullable: true })
@@ -50,8 +50,9 @@ export class User {
   profilePicture?: string;
 
   @OneToMany(() => Comment, (comment) => comment.user)
-  public comments!: Comment[];
+  public comments: Comment[];
 
   @OneToMany(() => Rate, (rate) => rate.user)
-  public rates!: Rate[];
+  public rates: Rate[];
 }
+

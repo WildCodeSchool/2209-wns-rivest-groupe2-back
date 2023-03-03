@@ -22,7 +22,7 @@ export class Rate {
   @Column({
     type: "enum",
     enum: rateNumbers,
-    default: 4,
+    default: rateNumbers.FOUR,
   })
   rate: rateNumbers;
 
@@ -35,8 +35,8 @@ export class Rate {
   updateDate: Date;
 
   @ManyToOne(() => User, (user) => user.rates)
-  public user!: User;
+  public user: User;
 
   @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
-  public pointOfInterest!: PointOfInterest;
+  public pointOfInterest: PointOfInterest;
 }
