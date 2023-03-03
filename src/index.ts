@@ -9,6 +9,9 @@ import { CityResolver } from "./resolver/cityResolver";
 import { PointOfInterestResolver } from "./resolver/pointOfInterestResolver";
 import { RateResolver } from "./resolver/rateResolver";
 import { CommentResolver } from "./resolver/commentResolver";
+import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
+import { IDecodedJWT } from "./interfaces/IDecodedJWT";
+import { User } from "./entities/user";
 
 dotenv.config();
 
@@ -17,17 +20,23 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
   const schema = await buildSchema({
-    resolvers: [UserResolver, RateResolver, CommentResolver, CityResolver, PointOfInterestResolver],
+    resolvers: [
+      UserResolver,
+      RateResolver,
+      CommentResolver,
+      CityResolver,
+      PointOfInterestResolver,
+      DeleteAllEntitiesResolver,
+    ],
     authChecker: ({ context }) => {
-      console.log("context", context);
-      if (context.email === undefined) {
+      if (context.user.email === undefined) {
         return false;
       } else return true;
     },
   });
   const server = new ApolloServer({
     schema,
-    context: ({ req }) => {
+    context: async ({ req }) => {
       if (
         req.headers.authorization === undefined ||
         process.env.JWT_SECRET_KEY === undefined
@@ -36,9 +45,20 @@ const start = async (): Promise<void> => {
       } else {
         try {
           const bearer = req.headers.authorization.split("Bearer ")[1];
-          if (bearer.length > 0) {
-            const user = jwt.verify(bearer, process.env.JWT_SECRET_KEY);
-            return user;
+
+          if (bearer?.length > 0) {
+            const verifiedToken = jwt.verify(
+              bearer,
+              process.env.JWT_SECRET_KEY
+            );
+
+            const userToken = verifiedToken as IDecodedJWT;
+
+            const user = await dataSource
+              .getRepository(User)
+              .findOneByOrFail({ email: userToken.email });
+
+            return { user };
           } else {
             return {};
           }
