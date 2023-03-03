@@ -1,10 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
-import { User } from "./user";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -69,8 +68,6 @@ export class PointOfInterest implements IPoi {
     return Number(average.toFixed(1));
   }
 
-
-
   @Field(() => [String], { nullable: true })
   @Column({ array: true, nullable: true })
   pictureUrl: string;
@@ -109,9 +106,6 @@ export class PointOfInterest implements IPoi {
 
   /*   @ManyToOne(() => City, (city) => city.pointOfInterest)
   public city: City; */
-  @ManyToMany(() => User, (user) => user.ratedPOIs)
-  raters: User[];
-
 
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments: Comment[];

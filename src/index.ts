@@ -12,6 +12,7 @@ import { CommentResolver } from "./resolver/commentResolver";
 import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
 import { IDecodedJWT } from "./interfaces/IDecodedJWT";
 import { User } from "./entities/user";
+import { UserContext } from "./interfaces/UserContext";
 
 dotenv.config();
 
@@ -36,7 +37,7 @@ const start = async (): Promise<void> => {
   });
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
+    context: async ({ req }): Promise<UserContext> => {
       if (
         req.headers.authorization === undefined ||
         process.env.JWT_SECRET_KEY === undefined

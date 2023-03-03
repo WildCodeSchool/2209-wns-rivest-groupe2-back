@@ -13,6 +13,8 @@ import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
+import { Rate } from "../entities/rate";
+import { Comment } from "../entities/comment";
 
 @ObjectType()
 class LoginResponse {

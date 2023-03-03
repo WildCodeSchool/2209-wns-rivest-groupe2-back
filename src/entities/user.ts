@@ -1,8 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, EntityRepository, Repository } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
-import { PointOfInterest } from "./pointOfInterest";
 
 export enum UserType {
   ADMIN = "admin",
@@ -18,7 +17,7 @@ export class User {
   id: number;
 
   @Field()
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({ unique: true })
   email: string;
 
   @Field({ nullable: true })
@@ -50,13 +49,10 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
-  @ManyToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.raters)
-  @JoinTable()
-  ratedPOIs: PointOfInterest[];
-
   @OneToMany(() => Comment, (comment) => comment.user)
   public comments: Comment[];
 
   @OneToMany(() => Rate, (rate) => rate.user)
   public rates: Rate[];
 }
+
