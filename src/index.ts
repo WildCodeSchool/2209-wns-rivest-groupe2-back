@@ -73,7 +73,7 @@ const start = async (): Promise<void> => {
 
   try {
     const { url }: { url: string } = await server.listen({ port });
-    console.log(`🚀  Server ready at ${url}`);
+    console.log(`🚀  Server ready at the ${url}`);
   } catch (error) {
     console.log("Error starting the server");
   }
