@@ -16,11 +16,11 @@ export class Comment {
   @Column()
   public pointOfInterestId!: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ type: "timestamp", nullable: true })
   createDate: Date;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 
