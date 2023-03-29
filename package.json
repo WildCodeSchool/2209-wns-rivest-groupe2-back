@@ -7,7 +7,9 @@
     "start": "node -r dotenv/config build/index.js",
     "dev": "ts-node-dev src/index.ts",
     "docker": "docker compose -f docker-compose.dev.yml up --build",
-    "integration-test": "docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner"
+    "integration-test": "docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner",
+    "build": "tsc",
+    "prod": "node build/index.js"
   },
   "author": "",
   "license": "ISC",
