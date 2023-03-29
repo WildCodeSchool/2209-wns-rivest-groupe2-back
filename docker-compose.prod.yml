@@ -14,8 +14,8 @@ services:
       retries: 10
   backend:
     image: cityguidewild/cityguidewild_server
-    expose:
-      - 5000
+    ports:
+      - 5000:5000
     environment:
       - NODE_ENV=production
       - SERVER_PORT=5000
