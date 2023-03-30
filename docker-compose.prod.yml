@@ -14,6 +14,7 @@ services:
       retries: 10
   backend:
     image: cityguidewild/cityguidewild_server
+    pull_policy: always
     ports:
       - 5000:5000
     environment:
