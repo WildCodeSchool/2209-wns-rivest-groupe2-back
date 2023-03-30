@@ -20,7 +20,7 @@ jobs:
       - name: Run tests
         run: docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner
   docker:
-    needs: run-tests
+    needs: test-back
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
