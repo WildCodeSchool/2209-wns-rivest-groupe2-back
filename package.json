@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node -r dotenv/config build/index.js",
+    "start": "node -r dotenv/config dist/index.js",
     "dev": "ts-node-dev src/index.ts",
     "docker": "docker compose -f docker-compose.dev.yml up --build",
     "integration-test": "docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner",
