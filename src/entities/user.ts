@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
@@ -50,13 +50,27 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
-  @Field(() => Comment, { nullable: true })
-  @OneToMany(() => Comment, (comment) => comment.user)
-  public comments: Comment[];
 
-  @Field(() => Rate, { nullable: true })
-  @OneToMany(() => Rate, (rate) => rate.user)
-  public rates: Rate[];
+  @OneToOne(() => Comment, (comment) => comment.user, {
+        cascade: true,
+        eager: true,
+    })
+  @JoinColumn()
+  comment: Comment;
+
+  @OneToOne(() => Rate, (rate) => rate.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  rate: Rate;
+
+  @OneToOne(() => Favorite, (favorite) => favorite.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  favorite: Favorite;
 
   @Field(() => Favorite, { nullable: true })
   @OneToMany(() => Favorite, (favorite) => favorite.user)

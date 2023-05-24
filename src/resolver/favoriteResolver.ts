@@ -49,16 +49,18 @@ export class FavoriteResolver {
 
 
     
-    @Mutation(() => Favorite)
-    async addFavorite(
+    @Mutation(() => Boolean)
+    async toggleFavorite(
       @Arg("poiId") poiId: number,
       @Arg("userId") userId: number
-    ): Promise<Favorite | ApolloError> {
+    ): Promise<boolean | ApolloError> {
       const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
       const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+    
       if (poi == null) {
         throw new ApolloError(`PointID of interest not found`);
       }
+    
       if (user == null) {
         throw new ApolloError(`UserID not found`);
       }
@@ -69,41 +71,23 @@ export class FavoriteResolver {
           pointOfInterest: { id: poiId}
         },
       });
-
-      if (existingFavorite != null){
-        throw new ApolloError(`This favorite already exists`)
-      }
     
-      const favorite = new Favorite();
-      favorite.user = user; 
-      favorite.pointOfInterest = poi;
-      
       try {
-        const savedFavorite = await dataSource.manager.save(favorite);
-        return savedFavorite;
+        if (existingFavorite != null){
+          await dataSource.manager.remove(existingFavorite);
+          return false; // favorite removed
+        } else {
+          const favorite = new Favorite();
+          favorite.user = user; 
+          favorite.pointOfInterest = poi;
+    
+          await dataSource.manager.save(favorite);
+          return true; // favorite added
+        }
       } catch (error: any) {
         throw new ApolloError(error.message);
       }
     }
     
-
-    @Mutation(() => Boolean)
-    async removeFavorite(
-      @Arg("favoriteId") favoriteId: number
-    ): Promise<boolean | ApolloError> {
-  const favorite = await dataSource.manager.findOne(Favorite, { where: { id: favoriteId } });
-
-  if (favorite == null) {
-    throw new ApolloError(`Favorite not found`);
-  }
-  
-  
-  try {
-    await dataSource.manager.remove(favorite);
-    return true;
-  } catch (error: any) {
-    throw new ApolloError(error.message);
-  }
-}
 
 }
