@@ -57,11 +57,11 @@ export class FavoriteResolver {
       const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
       const user = await dataSource.manager.findOne(User, { where: { id: userId } });
     
-      if (poi == null) {
+      if (poi === null) {
         throw new ApolloError(`PointID of interest not found`);
       }
     
-      if (user == null) {
+      if (user === null) {
         throw new ApolloError(`UserID not found`);
       }
     

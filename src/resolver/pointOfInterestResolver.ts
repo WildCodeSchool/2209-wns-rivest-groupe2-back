@@ -9,21 +9,6 @@ import { UserContext } from "../interfaces/UserContext";
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
-  // @FieldResolver(() => [Rate])
-  // async getRates(@Root() poi: PointOfInterest): Promise<Rate[]> {
-  //   const poiWithRates = await dataSource.manager.findOne(PointOfInterest, {
-  //     where: { id: poi.id },
-  //     relations: ["rates"],
-  //   });
-
-  //   if (poiWithRates == null) {
-  //     return [];
-  //   }
-
-  //   return poiWithRates?.rates ?? [];
-  // }
-
-
   @Query(() => PointOfInterest)
   async getPOIbyId(
     @Arg("id") id: number,
@@ -31,7 +16,7 @@ export class PointOfInterestResolver {
   ): Promise<PointOfInterest> {
     const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["rates", "comments", "favorites", "rates.user", "comments.user", "favorites.user"] });
 
-    if (poi == null) {
+    if (poi === null) {
       throw new Error("POI not found");
     }
 
@@ -136,6 +121,4 @@ export class PointOfInterestResolver {
       throw new ApolloError(err.message);
     }
   }
-
-
 }

@@ -44,11 +44,11 @@ export class RateResolver {
   ): Promise<Rate | ApolloError> {
     const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
     const user = await dataSource.manager.findOne(User, { where: { id: userId } });
-    if (poi == null) {
+    if (poi === null) {
       throw new ApolloError(`PointID of interest not found`);
     }
   
-    if (user == null) {
+    if (user === null) {
       throw new ApolloError(`UserID not found`);
     }
   
@@ -59,7 +59,7 @@ export class RateResolver {
       },
     });
   
-    if (rate == null) {
+    if (rate === null) {
       // If rate doesn't exist, create a new one
       rate = new Rate();
       rate.user = user;
