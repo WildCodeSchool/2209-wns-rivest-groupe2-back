@@ -19,10 +19,9 @@ jobs:
           echo "NODE_ENV=test" >> .env
       - name: Run tests
         run: docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner
-
   docker:
     needs: test-back
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -39,4 +38,5 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cityguide-back:latest
+          file: ./Dockerfile
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_HUB_SERVER_IMAGE_NAME }}:latest
