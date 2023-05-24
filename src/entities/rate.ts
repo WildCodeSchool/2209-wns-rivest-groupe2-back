@@ -34,9 +34,11 @@ export class Rate {
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 
+  @Field(() => User)
   @ManyToOne(() => User, (user) => user.rates)
   public user: User;
 
+  @Field(() => PointOfInterest)
   @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
   public pointOfInterest: PointOfInterest;
 }

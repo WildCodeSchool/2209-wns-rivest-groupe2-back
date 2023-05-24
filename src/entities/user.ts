@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
+import { Favorite } from "./favorite";
 
 export enum UserType {
   ADMIN = "admin",
@@ -49,10 +50,16 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
+  @Field(() => Comment, { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.user)
   public comments: Comment[];
 
+  @Field(() => Rate, { nullable: true })
   @OneToMany(() => Rate, (rate) => rate.user)
   public rates: Rate[];
+
+  @Field(() => Favorite, { nullable: true })
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  public favorites: Favorite[];
 }
 

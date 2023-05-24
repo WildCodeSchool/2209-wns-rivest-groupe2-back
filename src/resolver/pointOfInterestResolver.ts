@@ -1,30 +1,27 @@
-import { Arg, Mutation, Query, Resolver, FieldResolver, Root, Authorized, Ctx } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, Authorized, Ctx } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
-import { Rate } from "../entities/rate";
 import { UserContext } from "../interfaces/UserContext";
 
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
-  @FieldResolver(() => [Rate])
-  async getRates(@Root() poi: PointOfInterest): Promise<Rate[]> {
-    const poiWithRates = await dataSource.manager.findOne(PointOfInterest, {
-      where: { id: poi.id },
-      relations: ["rates"],
-    });
+  // @FieldResolver(() => [Rate])
+  // async getRates(@Root() poi: PointOfInterest): Promise<Rate[]> {
+  //   const poiWithRates = await dataSource.manager.findOne(PointOfInterest, {
+  //     where: { id: poi.id },
+  //     relations: ["rates"],
+  //   });
 
-    if (poiWithRates == null) {
-      return [];
-    }
+  //   if (poiWithRates == null) {
+  //     return [];
+  //   }
 
-    return poiWithRates?.rates ?? [];
-  }
-
-
+  //   return poiWithRates?.rates ?? [];
+  // }
 
 
   @Query(() => PointOfInterest)
@@ -32,7 +29,7 @@ export class PointOfInterestResolver {
     @Arg("id") id: number,
     @Ctx() { user }: UserContext
   ): Promise<PointOfInterest> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["rates", "comments", "rates.user", "comments.user"] });
+    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["rates", "comments", "favorites", "rates.user", "comments.user", "favorites.user"] });
 
     if (poi == null) {
       throw new Error("POI not found");
@@ -41,6 +38,7 @@ export class PointOfInterestResolver {
     if (user != null) {
       poi.rates = poi.rates.filter((rate) => rate.user.id === user.id);
       poi.comments = poi.comments.filter((comment) => comment.user.id === user.id);
+      poi.favorites = poi.favorites.filter((favorite) => favorite.user.id === user.id);
     }
 
     return poi;
@@ -50,7 +48,7 @@ export class PointOfInterestResolver {
 
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
-    const allPois = await dataSource.manager.find(PointOfInterest);
+    const allPois = await dataSource.manager.find(PointOfInterest, {relations: ["rates", "comments", "favorites", "rates.user", "comments.user", "favorites.user"]});
     return allPois;
   }
 
@@ -138,4 +136,6 @@ export class PointOfInterestResolver {
       throw new ApolloError(err.message);
     }
   }
+
+
 }
