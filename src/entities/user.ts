@@ -5,9 +5,11 @@ import { Rate } from "./rate";
 import { Favorite } from "./favorite";
 
 export enum UserType {
-  ADMIN = "admin",
-  FREEUSER = "freeUser",
+  SUPERADMIN = "superAdmin",
+  ADMINCITY = "adminCity",
+  SUPERUSER = "superUser",
   PAIDUSER = "paidUser",
+  FREEUSER = "freeUser",
 }
 
 @ObjectType()
