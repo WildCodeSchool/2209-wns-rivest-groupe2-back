@@ -4,6 +4,7 @@ import { Comment } from "./comment";
 import { Rate } from "./rate";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
+import { Favorite } from "./favorite";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -107,9 +108,15 @@ export class PointOfInterest implements IPoi {
   /*   @ManyToOne(() => City, (city) => city.pointOfInterest)
   public city: City; */
 
+  @Field(() => Comment, { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments: Comment[];
 
+  @Field(() => Rate, { nullable: true })
   @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
   public rates: Rate[];
+
+  @Field(() => Favorite, { nullable: true })
+  @OneToMany(() => Favorite, (favorite) => favorite.pointOfInterest)
+  public favorites: Favorite[];
 }

@@ -13,8 +13,8 @@ import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
-import { Rate } from "../entities/rate";
-import { Comment } from "../entities/comment";
+import { PointOfInterest } from "../entities/pointOfInterest";
+import { Favorite } from "../entities/favorite";
 
 @ObjectType()
 class LoginResponse {
@@ -62,9 +62,7 @@ class UpdateUserInput {
 export class UserResolver {
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User, {
-      relations: { rates: true },
-    });
+    return await dataSource.manager.find(User);
   }
 
   @Query(() => User)
@@ -150,13 +148,16 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username != null && (userToUpdate.username = username);
-      email != null && (userToUpdate.email = email);
-      firstname != null && (userToUpdate.firstname = firstname);
-      lastname != null && (userToUpdate.lastname = lastname);
-      password != null &&
+      username !== null &&
+        username !== undefined &&
+        (userToUpdate.username = username);
+      email !== null && email !== undefined && (userToUpdate.email = email);
+      firstname !== null && (userToUpdate.firstname = firstname);
+      lastname !== null && (userToUpdate.lastname = lastname);
+      password !== null &&
+        password !== undefined &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
-      profilePicture != null && (userToUpdate.profilePicture = profilePicture);
+      profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
       return userToUpdate;
     } catch (err: any) {
@@ -171,6 +172,37 @@ export class UserResolver {
       return "user deleted";
     } catch (err: any) {
       throw new ApolloError(err.message);
+    }
+  }
+
+  @Query(() => [PointOfInterest])
+  async getUserFavoritePOI(@Arg("id") id: number): Promise<PointOfInterest[]> {
+    try {
+      // Find the PointOfInterest entities that are favorites for the given user ID
+      const favoritePOIs = await dataSource.manager
+        .createQueryBuilder(PointOfInterest, "pointOfInterest")
+        .innerJoin("pointOfInterest.favorites", "favorite")
+        .where("favorite.userId = :id", { id })
+        .getMany();
+
+      return favoritePOIs;
+    } catch (error) {
+      console.error("Error fetching user favorite POIs:", error);
+      return [];
+    }
+  }
+
+  @Query(() => [Favorite])
+  async getUserFavorites(@Arg("userId") userId: number): Promise<Favorite[]> {
+    try {
+      const favorites = await dataSource.manager.find(Favorite, {
+        where: { user: { id: userId } },
+        relations: ["user", "pointOfInterest"],
+      });
+      return favorites;
+    } catch (error) {
+      console.error("Error fetching user favorites:", error);
+      return [];
     }
   }
 }
