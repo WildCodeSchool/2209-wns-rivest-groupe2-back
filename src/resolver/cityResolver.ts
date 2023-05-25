@@ -63,10 +63,10 @@ export class CityResolver {
       const cityToUpdate = await dataSource.manager.findOneByOrFail(City, {
         id,
       });
-      name != null && (cityToUpdate.name = name);
-      currentLocation != null &&
+      name !== null && name !== undefined && (cityToUpdate.name = name);
+      currentLocation !== null &&
         (cityToUpdate.currentLocation = currentLocation);
-      population != null && (cityToUpdate.population = population);
+      population !== null && (cityToUpdate.population = population);
 
       await dataSource.manager.save(City, cityToUpdate);
       return cityToUpdate;
