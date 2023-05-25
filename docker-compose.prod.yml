@@ -22,8 +22,6 @@ services:
       - SERVER_PORT=5000
     env_file:
       - ./.env
-    volumes:
-      - ./src:/app/src
     command: sh -c "npm run build && npm run prod"
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
@@ -33,11 +31,27 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  images:
+    container_name: images-service
+    env_file:
+      - ./.env
+    image: cityguidewild/cityguidewild-images-service
+    volumes:
+      - ./images-service/uploads:/app/uploads
+    command: [sh, -cx, "npm run build && npm run prod"]
+    ports:
+      - 9000:8000
+    healthcheck:
+      test: "curl --fail --request GET --url 'http://localhost:8000' || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
   frontend:
     image: cityguidewild/cityguidewild_client
+    pull_policy: always
     command: sh -c "npm run build"
     env_file:
-      - ../front/.env
+      - ./.env
     environment:
       - NODE_ENV=production
     volumes:
@@ -47,11 +61,15 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      images:
+        condition: service_healthy
   nginx:
     image: nginx:1.21.3
     depends_on:
       - frontend
       - backend
+      - db
+      - adminer
     restart: always
     ports:
       - ${GATEWAY_PORT:-8000}:80
