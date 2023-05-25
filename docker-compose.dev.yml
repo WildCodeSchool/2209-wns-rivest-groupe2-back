@@ -40,11 +40,26 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      images:
+        condition: service_healthy
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
-
+  images:
+    env_file:
+      - ../images-upload-service/.env
+    build: ../images-upload-service
+    volumes:
+      - ../images-upload-service/src:/app/src
+      - ../images-upload-service/uploads:/app/uploads
+    ports:
+      - 9000:8000
+    healthcheck:
+      test: "curl --fail --request GET --url 'http://localhost:8000' || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
 volumes:
   postgres:
