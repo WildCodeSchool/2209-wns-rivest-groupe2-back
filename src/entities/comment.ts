@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { User } from "./user";
 import { PointOfInterest } from "./pointOfInterest";
@@ -28,8 +28,9 @@ export class Comment {
   @Column()
   text: string;
 
-  @ManyToOne(() => User, (user) => user.comments)
-  public user!: User;
+  @OneToOne(() => User, (user) => user.comment)
+  @JoinColumn()
+  user: User;
 
   @ManyToOne(
     () => PointOfInterest,

@@ -1,12 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Rate } from "./rate";
+import { Favorite } from "./favorite";
 
 export enum UserType {
-  ADMIN = "admin",
-  FREEUSER = "freeUser",
+  SUPERADMIN = "superAdmin",
+  ADMINCITY = "adminCity",
+  SUPERUSER = "superUser",
   PAIDUSER = "paidUser",
+  FREEUSER = "freeUser",
 }
 
 @ObjectType()
@@ -49,10 +52,30 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
-  @OneToMany(() => Comment, (comment) => comment.user)
-  public comments: Comment[];
 
-  @OneToMany(() => Rate, (rate) => rate.user)
-  public rates: Rate[];
+  @OneToOne(() => Comment, (comment) => comment.user, {
+        cascade: true,
+        eager: true,
+    })
+  @JoinColumn()
+  comment: Comment;
+
+  @OneToOne(() => Rate, (rate) => rate.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  rate: Rate;
+
+  @OneToOne(() => Favorite, (favorite) => favorite.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  favorite: Favorite;
+
+  @Field(() => Favorite, { nullable: true })
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  public favorites: Favorite[];
 }
 

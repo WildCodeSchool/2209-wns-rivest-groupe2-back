@@ -13,6 +13,7 @@ import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
 import { IDecodedJWT } from "./interfaces/IDecodedJWT";
 import { User } from "./entities/user";
 import { UserContext } from "./interfaces/UserContext";
+import { FavoriteResolver } from "./resolver/favoriteResolver";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ const start = async (): Promise<void> => {
       RateResolver,
       CommentResolver,
       CityResolver,
+      FavoriteResolver,
       PointOfInterestResolver,
       DeleteAllEntitiesResolver,
     ],
