@@ -73,9 +73,5 @@ export class User {
   })
   @JoinColumn()
   favorite: Favorite;
-
-  @Field(() => Favorite, { nullable: true })
-  @OneToMany(() => Favorite, (favorite) => favorite.user)
-  public favorites: Favorite[];
 }
 
