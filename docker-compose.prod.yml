@@ -40,9 +40,9 @@ services:
       - ./images-service/uploads:/app/uploads
     command: [sh, -cx, "npm run build && npm run prod"]
     ports:
-      - 18000:8000
+      - 18000:18000
     healthcheck:
-      test: "curl --fail --request GET --url 'http://localhost:8000' || exit 1"
+      test: "curl --fail --request GET --url 'http://localhost:18000' || exit 1"
       interval: 5s
       timeout: 5s
       retries: 10
