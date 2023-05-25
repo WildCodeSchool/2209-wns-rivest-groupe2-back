@@ -7,12 +7,11 @@ import dataSource from "../utils/datasource";
 
 @Resolver(Comment)
 export class CommentResolver {
-
   @Query(() => [Comment])
   async getAllComments(): Promise<Comment[]> {
     try {
       const comments = await dataSource.manager.find(Comment, {
-        relations: ['user', 'pointOfInterest'],
+        relations: ["user", "pointOfInterest"],
       });
       return comments;
     } catch (error) {
@@ -21,15 +20,17 @@ export class CommentResolver {
     }
   }
 
-
-
   @Query(() => Comment, { nullable: true })
   async getUserCommentForPOI(
     @Arg("poiId", () => Number) poiId: number,
-    @Arg("userId", () => Number) userId: number,
+    @Arg("userId", () => Number) userId: number
   ): Promise<Comment | null> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
-    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id: poiId },
+    });
+    const user = await dataSource.manager.findOne(User, {
+      where: { id: userId },
+    });
 
     if (poi === null) {
       throw new ApolloError(`PointID of interest not found`);
@@ -49,32 +50,35 @@ export class CommentResolver {
     return userComment ?? null;
   }
 
-
   @Mutation(() => Comment)
   async commentPOI(
     @Arg("poiId", () => Number) poiId: number,
     @Arg("userId", () => Number) userId: number,
     @Arg("comment") commentInput: string
   ): Promise<Comment | ApolloError> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
-    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
-  
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id: poiId },
+    });
+    const user = await dataSource.manager.findOne(User, {
+      where: { id: userId },
+    });
+
     if (poi === null) {
       throw new ApolloError(`PointID of interest not found`);
     }
-  
+
     if (user === null) {
       throw new ApolloError(`UserID not found`);
     }
-  
+
     let comment = await dataSource.manager.findOne(Comment, {
       where: {
         user: { id: user.id },
         pointOfInterest: { id: poi.id },
       },
     });
-  
-    if (comment != null) {
+
+    if (comment !== null) {
       comment.text = commentInput;
     } else {
       comment = new Comment();
@@ -83,7 +87,7 @@ export class CommentResolver {
       comment.pointOfInterest = poi;
       comment.createDate = new Date();
     }
-  
+
     try {
       const savedComment = await dataSource.manager.save(comment);
       return savedComment;
@@ -91,6 +95,4 @@ export class CommentResolver {
       throw new ApolloError(error.message);
     }
   }
-  
-
 }

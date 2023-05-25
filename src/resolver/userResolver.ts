@@ -68,7 +68,7 @@ export class UserResolver {
   @Query(() => User)
   async getUserById(@Arg("id") id: number): Promise<User> {
     try {
-      const userById = await dataSource.manager.findOneByOrFail(User,  { id });
+      const userById = await dataSource.manager.findOneByOrFail(User, { id });
       return userById;
     } catch (err: any) {
       throw new ApolloError(err.message);
@@ -148,13 +148,13 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username != null && (userToUpdate.username = username);
-      email != null && (userToUpdate.email = email);
-      firstname != null && (userToUpdate.firstname = firstname);
-      lastname != null && (userToUpdate.lastname = lastname);
-      password != null &&
+      username !== null && (userToUpdate.username = username);
+      email !== null && (userToUpdate.email = email);
+      firstname !== null && (userToUpdate.firstname = firstname);
+      lastname !== null && (userToUpdate.lastname = lastname);
+      password !== null &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
-      profilePicture != null && (userToUpdate.profilePicture = profilePicture);
+      profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
       return userToUpdate;
     } catch (err: any) {
@@ -181,7 +181,7 @@ export class UserResolver {
         .innerJoin("pointOfInterest.favorites", "favorite")
         .where("favorite.userId = :id", { id })
         .getMany();
-  
+
       return favoritePOIs;
     } catch (error) {
       console.error("Error fetching user favorite POIs:", error);
@@ -190,21 +190,16 @@ export class UserResolver {
   }
 
   @Query(() => [Favorite])
-async getUserFavorites(@Arg("userId") userId: number): Promise<Favorite[]> {
-  try {
-    const favorites = await dataSource.manager.find(Favorite, {
-      where: { user: { id: userId } },
-      relations: ['user', 'pointOfInterest'],
-    });
-    return favorites;
-  } catch (error) {
-    console.error("Error fetching user favorites:", error);
-    return [];
+  async getUserFavorites(@Arg("userId") userId: number): Promise<Favorite[]> {
+    try {
+      const favorites = await dataSource.manager.find(Favorite, {
+        where: { user: { id: userId } },
+        relations: ["user", "pointOfInterest"],
+      });
+      return favorites;
+    } catch (error) {
+      console.error("Error fetching user favorites:", error);
+      return [];
+    }
   }
-}
-
-  
-  
-
-  
 }
