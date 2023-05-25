@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { User } from "./user";
@@ -34,9 +34,11 @@ export class Rate {
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 
-  @ManyToOne(() => User, (user) => user.rates)
-  public user: User;
+  @OneToOne(() => User, (user) => user.rate)
+  @JoinColumn()
+  user: User;
 
+  @Field(() => PointOfInterest)
   @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
   public pointOfInterest: PointOfInterest;
 }

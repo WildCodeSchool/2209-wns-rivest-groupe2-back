@@ -1,56 +1,59 @@
-import { Arg, Mutation, Query, Resolver, FieldResolver, Root, Authorized, Ctx } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, Authorized, Ctx } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
-import { Rate } from "../entities/rate";
 import { UserContext } from "../interfaces/UserContext";
-
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
-  @FieldResolver(() => [Rate])
-  async getRates(@Root() poi: PointOfInterest): Promise<Rate[]> {
-    const poiWithRates = await dataSource.manager.findOne(PointOfInterest, {
-      where: { id: poi.id },
-      relations: ["rates"],
-    });
-
-    if (poiWithRates == null) {
-      return [];
-    }
-
-    return poiWithRates?.rates ?? [];
-  }
-
-
-
-
   @Query(() => PointOfInterest)
   async getPOIbyId(
     @Arg("id") id: number,
     @Ctx() { user }: UserContext
   ): Promise<PointOfInterest> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["rates", "comments", "rates.user", "comments.user"] });
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id },
+      relations: [
+        "rates",
+        "comments",
+        "favorites",
+        "rates.user",
+        "comments.user",
+        "favorites.user",
+      ],
+    });
 
-    if (poi == null) {
+    if (poi === null) {
       throw new Error("POI not found");
     }
 
-    if (user != null) {
+    if (user !== null && user !== undefined) {
       poi.rates = poi.rates.filter((rate) => rate.user.id === user.id);
-      poi.comments = poi.comments.filter((comment) => comment.user.id === user.id);
+      poi.comments = poi.comments.filter(
+        (comment) => comment.user.id === user.id
+      );
+      poi.favorites = poi.favorites.filter(
+        (favorite) => favorite.user.id === user.id
+      );
     }
 
     return poi;
   }
 
-
-
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
-    const allPois = await dataSource.manager.find(PointOfInterest);
+    const allPois = await dataSource.manager.find(PointOfInterest, {
+      relations: [
+        "rates",
+        "comments",
+        "favorites",
+        "rates.user",
+        "comments.user",
+        "favorites.user",
+      ],
+    });
     return allPois;
   }
 
@@ -106,21 +109,21 @@ export class PointOfInterestResolver {
           id,
         }
       );
-      name != null && (pointOfInterestToUpdate.name = name);
-      address != null && (pointOfInterestToUpdate.address = address);
-      postal != null && (pointOfInterestToUpdate.postal = postal);
-      type != null && (pointOfInterestToUpdate.type = type);
-      coordinates != null &&
+      name !== null && (pointOfInterestToUpdate.name = name);
+      address !== null && (pointOfInterestToUpdate.address = address);
+      postal !== null && (pointOfInterestToUpdate.postal = postal);
+      type !== null && (pointOfInterestToUpdate.type = type);
+      coordinates !== null &&
         (pointOfInterestToUpdate.coordinates = coordinates);
-      pictureUrl != null && (pointOfInterestToUpdate.pictureUrl = pictureUrl);
-      websiteURL != null && (pointOfInterestToUpdate.websiteURL = websiteURL);
-      description != null &&
+      pictureUrl !== null && (pointOfInterestToUpdate.pictureUrl = pictureUrl);
+      websiteURL !== null && (pointOfInterestToUpdate.websiteURL = websiteURL);
+      description !== null &&
         (pointOfInterestToUpdate.description = description);
-      priceRange != null && (pointOfInterestToUpdate.priceRange = priceRange);
-      city != null && (pointOfInterestToUpdate.city = city);
-      daysOpen != null && (pointOfInterestToUpdate.daysOpen = daysOpen);
-      hoursOpen != null && (pointOfInterestToUpdate.hoursOpen = hoursOpen);
-      hoursClose != null && (pointOfInterestToUpdate.hoursClose = hoursClose);
+      priceRange !== null && (pointOfInterestToUpdate.priceRange = priceRange);
+      city !== null && (pointOfInterestToUpdate.city = city);
+      daysOpen !== null && (pointOfInterestToUpdate.daysOpen = daysOpen);
+      hoursOpen !== null && (pointOfInterestToUpdate.hoursOpen = hoursOpen);
+      hoursClose !== null && (pointOfInterestToUpdate.hoursClose = hoursClose);
       await dataSource.manager.save(PointOfInterest, pointOfInterestToUpdate);
       return pointOfInterestToUpdate;
     } catch (err: any) {
