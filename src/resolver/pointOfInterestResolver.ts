@@ -29,7 +29,7 @@ export class PointOfInterestResolver {
       throw new Error("POI not found");
     }
 
-    if (user !== null) {
+    if (user !== null && user !== undefined) {
       poi.rates = poi.rates.filter((rate) => rate.user.id === user.id);
       poi.comments = poi.comments.filter(
         (comment) => comment.user.id === user.id

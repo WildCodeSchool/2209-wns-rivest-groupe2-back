@@ -148,11 +148,14 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username !== null && (userToUpdate.username = username);
-      email !== null && (userToUpdate.email = email);
+      username !== null &&
+        username !== undefined &&
+        (userToUpdate.username = username);
+      email !== null && email !== undefined && (userToUpdate.email = email);
       firstname !== null && (userToUpdate.firstname = firstname);
       lastname !== null && (userToUpdate.lastname = lastname);
       password !== null &&
+        password !== undefined &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
       profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
