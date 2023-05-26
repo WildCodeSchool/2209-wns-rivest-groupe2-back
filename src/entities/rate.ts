@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn, BeforeInsert } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { User } from "./user";
@@ -19,6 +19,14 @@ export class Rate {
   id: number;
 
   @Field()
+  @Column()
+  userId: number
+
+  @Field()
+  @Column()
+  poiId: number
+
+  @Field()
   @Column({
     type: "enum",
     enum: rateNumbers,
@@ -34,11 +42,18 @@ export class Rate {
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 
-  @OneToOne(() => User, (user) => user.rate)
+  @ManyToOne(() => User, (user) => user.rates)
   @JoinColumn()
   user: User;
+
 
   @Field(() => PointOfInterest)
   @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
   public pointOfInterest: PointOfInterest;
+
+  // @BeforeInsert()
+  // setIds(): void {
+  //   this.userId = this.user?.id ?? this.userId;
+  //   this.poiId = this.pointOfInterest?.id ?? this.poiId;
+  // }
 }

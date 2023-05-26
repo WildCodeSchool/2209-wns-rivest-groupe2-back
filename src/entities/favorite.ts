@@ -3,7 +3,7 @@ import {
     PrimaryGeneratedColumn,
     ManyToOne,
     JoinColumn,
-    OneToOne,
+    Column,
   } from 'typeorm';
   import { PointOfInterest } from './pointOfInterest';
   import { User } from './user';
@@ -16,7 +16,15 @@ import { Field, ObjectType } from 'type-graphql';
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User, (user) => user.favorite)
+    @Field()
+    @Column()
+    userId: number
+  
+    @Field()
+    @Column()
+    poiId: number
+
+    @ManyToOne(() => User, (user) => user.favorites)
     @JoinColumn()
     user: User;
   
