@@ -50,10 +50,4 @@ export class Rate {
   @Field(() => PointOfInterest)
   @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
   public pointOfInterest: PointOfInterest;
-
-  // @BeforeInsert()
-  // setIds(): void {
-  //   this.userId = this.user?.id ?? this.userId;
-  //   this.poiId = this.pointOfInterest?.id ?? this.poiId;
-  // }
 }
