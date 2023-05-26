@@ -1,54 +1,21 @@
-import { Arg, Mutation, Query, Resolver, Authorized, Ctx } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, Authorized } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
-import { UserContext } from "../interfaces/UserContext";
+
+
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
-  @Query(() => PointOfInterest)
-  async getPOIbyId(
-    @Arg("id") id: number,
-    @Ctx() { user }: UserContext
-  ): Promise<PointOfInterest> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, {
-      where: { id },
-      relations: [
-        "rates",
-        "comments",
-        "favorites",
-        "rates.user",
-        "comments.user",
-        "favorites.user",
-      ],
-    });
-
-    if (poi === null) {
-      throw new Error("POI not found");
-    }
-
-    if (user !== null && user !== undefined) {
-      poi.rates = poi.rates.filter((rate) => rate.user.id === user.id);
-      poi.comments = poi.comments.filter(
-        (comment) => comment.user.id === user.id
-      );
-      poi.favorites = poi.favorites.filter(
-        (favorite) => favorite.user.id === user.id
-      );
-    }
-
-    return poi;
-  }
-
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
     const allPois = await dataSource.manager.find(PointOfInterest, {
       relations: [
-        "rates",
-        "comments",
         "favorites",
+        "comments",
+        "rates",
         "rates.user",
         "comments.user",
         "favorites.user",
@@ -56,6 +23,26 @@ export class PointOfInterestResolver {
     });
     return allPois;
   }
+
+
+
+  // @Query(() => [PointOfInterest])
+  //   async getAllPoisAndUser(@Arg("userId") userId: number): Promise<POIWithUser[]>{
+  //     const allPois = await dataSource.manager.find(PointOfInterest)
+
+  //     const userRate = await dataSource.manager.findOne(Rate, { where: { userId }})
+  //     const userComment  = await dataSource.manager.findOne(Comment, { where: { userId }})
+  //     const userFavorite = await dataSource.manager.findOne(Favorite, { where: { userId }})
+
+
+  //     return {
+  //       pois: allPois,
+  //       userRate: userRate?.rate,
+  //       userComment: userComment?.text,
+  //       userFavorite: userFavorite?.id
+  //     }
+  //   }
+
 
   @Authorized()
   @Mutation(() => PointOfInterest)
