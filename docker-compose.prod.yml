@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: db-prod
     image: postgis/postgis
     restart: always
     user: postgres
@@ -13,6 +14,7 @@ services:
       timeout: 5s
       retries: 10
   backend:
+    container_name: backend-prod
     image: cityguidewild/cityguidewild_server
     pull_policy: always
     ports:
@@ -32,7 +34,7 @@ services:
       db:
         condition: service_healthy
   images:
-    container_name: images-service
+    container_name: images-service-prod
     env_file:
       - ./.env
     image: cityguidewild/cityguidewild-images-service
@@ -47,6 +49,7 @@ services:
       timeout: 5s
       retries: 10
   frontend:
+    container_name: frontend-prod
     image: cityguidewild/cityguidewild_client
     pull_policy: always
     command: sh -c "npm run build"
