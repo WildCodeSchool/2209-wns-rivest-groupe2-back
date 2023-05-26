@@ -55,7 +55,7 @@ services:
       - ../images-upload-service/src:/app/src
       - ../images-upload-service/uploads:/app/uploads
     ports:
-      - 9000:8000
+      - 18000:18000
     healthcheck:
       test: "curl --fail --request GET --url 'http://localhost:8000' || exit 1"
       interval: 5s
