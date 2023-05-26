@@ -50,8 +50,8 @@ jobs:
 
   # Third workflow called "deploy-staging" to deploy on dev CI/CD
   deploy-staging:
-    needs: test-back
-    if: github.ref == 'refs/heads/dev'
+    # needs: test-back
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
