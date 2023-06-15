@@ -15,6 +15,8 @@ import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
+import { EmailData } from "../types/Email.types";
+import { Email, sendMail, transporter } from "../nodemailer/transporter";
 
 @ObjectType()
 class LoginResponse {
@@ -149,9 +151,9 @@ export class UserResolver {
         id,
       });
       username !== null && username !== undefined && (userToUpdate.username = username);
-      email !== null &&  email !== undefined && (userToUpdate.email = email);
-      firstname !== null &&  firstname !== undefined && (userToUpdate.firstname = firstname);
-      lastname !== null &&  lastname!== undefined && (userToUpdate.lastname = lastname);
+      email !== null && email !== undefined && (userToUpdate.email = email);
+      firstname !== null && firstname !== undefined && (userToUpdate.firstname = firstname);
+      lastname !== null && lastname !== undefined && (userToUpdate.lastname = lastname);
       password !== null && password !== undefined &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
       profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
@@ -200,6 +202,21 @@ export class UserResolver {
     } catch (error) {
       console.error("Error fetching user favorites:", error);
       return [];
+    }
+  }
+
+
+  @Mutation(() => String)
+  async sendEmail(@Arg("data") data: EmailData): Promise<String> {
+
+    try {
+      await sendMail(Email.CONFIRMATION_EMAIL, data.to, {
+        firstname: 'yan',
+      });
+
+      return 'Verification email sent successfully'
+    } catch (err) {
+      return 'Une erreur est survenue'
     }
   }
 }
