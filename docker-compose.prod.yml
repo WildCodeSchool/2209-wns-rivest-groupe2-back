@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: db-prod
     image: postgis/postgis
     restart: always
     user: postgres
@@ -13,6 +14,7 @@ services:
       timeout: 5s
       retries: 10
   backend:
+    container_name: backend-prod
     image: cityguidewild/cityguidewild_server
     pull_policy: always
     ports:
@@ -33,7 +35,23 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  images:
+    container_name: images-service-prod
+    env_file:
+      - ./.env
+    image: cityguidewild/cityguidewild-images-service
+    volumes:
+      - ./images-service/uploads:/app/uploads
+    command: [sh, -cx, "npm run build && npm run prod"]
+    ports:
+      - 18000:18000
+    healthcheck:
+      test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
   frontend:
+    container_name: frontend-prod
     image: cityguidewild/cityguidewild_client
     command: sh -c "npm run build"
     env_file:
@@ -66,20 +84,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-  images:
-    image: cityguidewild/cityguidewild-images-service
-    env_file:
-      - ../images-upload-service/.env
-    volumes:
-      - ../images-upload-service/src:/app/src
-      - ../images-upload-service/uploads:/app/uploads
-    ports:
-      - 18000:8000
-    healthcheck:
-      test: "curl --fail --request GET --url 'http://localhost:18000' || exit 1"
-      interval: 5s
-      timeout: 5s
-      retries: 10
 volumes:
   postgres:
   web-client-build:

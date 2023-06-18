@@ -10,6 +10,7 @@ export const GET_ALL_POIS = gql`
       type
       coordinates
       creationDate
+      averageRate
       pictureUrl
       websiteURL
       description

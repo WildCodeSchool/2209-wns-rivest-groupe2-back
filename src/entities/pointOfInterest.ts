@@ -104,10 +104,7 @@ export class PointOfInterest implements IPoi {
   @Field(() => [String], { nullable: true })
   @Column({ array: true, nullable: true })
   hoursClose: string;
-
-  /*   @ManyToOne(() => City, (city) => city.pointOfInterest)
-  public city: City; */
-
+ 
   @Field(() => Comment, { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments: Comment[];

@@ -63,6 +63,8 @@ export class RateResolver {
       // If rate doesn't exist, create a new one
       rate = new Rate();
       rate.user = user;
+      rate.poiId = poi.id
+      rate.userId = user.id
       rate.pointOfInterest = poi;
     }
   
