@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import {
@@ -15,8 +16,9 @@ import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
-import { EmailData } from "../types/Email.types";
-import { Email, sendMail, transporter } from "../nodemailer/transporter";
+import { Email, sendMail } from "../nodemailer/transporter";
+import { v4 as uuidv4 } from 'uuid';
+
 
 @ObjectType()
 class LoginResponse {
@@ -121,6 +123,20 @@ export class UserResolver {
       newUser.email = email;
       newUser.hashedPassword = await argon2.hash(password);
 
+      // uuid (email confirmation logic)
+      const uuid = uuidv4();
+      newUser.uuid = uuid;
+
+      try {
+        const confirmUrl = `http://localhost:3000/confirmation-email/${newUser.uuid}`; 
+        await sendMail(Email.CONFIRMATION_EMAIL, email, {
+          confirmUrl
+        });
+  
+      } catch (err) {
+        throw new Error('Une erreur est survenue')
+      }
+
       const userFromDB = await dataSource.manager.save(User, newUser);
 
       const token = jwt.sign(
@@ -128,10 +144,25 @@ export class UserResolver {
         process.env.JWT_SECRET_KEY
       );
       return { token, userFromDB };
+
+     
     } catch (error) {
       throw new Error("Error try again with an other email or pseudo");
     }
   }
+
+  @Mutation(() => User)
+  async confirmUser(@Arg("uuid") uuid: string): Promise<User> {
+    const user = await  dataSource.manager.findOne(User, { where: { uuid } });
+    if (user === null) {
+      throw new Error("Invalid confirmation link");
+    }
+    user.isVerified = true;
+    user.uuid = undefined;
+    await dataSource.manager.save(User, user);
+    return user;
+  }
+  
 
   @Mutation(() => User)
   async updateUser(
@@ -202,21 +233,6 @@ export class UserResolver {
     } catch (error) {
       console.error("Error fetching user favorites:", error);
       return [];
-    }
-  }
-
-
-  @Mutation(() => String)
-  async sendEmail(@Arg("data") data: EmailData): Promise<String> {
-
-    try {
-      await sendMail(Email.CONFIRMATION_EMAIL, data.to, {
-        firstname: 'yan',
-      });
-
-      return 'Verification email sent successfully'
-    } catch (err) {
-      return 'Une erreur est survenue'
     }
   }
 }

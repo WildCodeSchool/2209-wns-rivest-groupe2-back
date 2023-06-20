@@ -17,7 +17,7 @@ export enum Email {
 }
 
 interface EmailMapping {
-    [Email.CONFIRMATION_EMAIL]: { firstname: string };
+    [Email.CONFIRMATION_EMAIL]: { confirmUrl: string };
 }
 
 type EmailOptions<E extends Email> = EmailMapping[E];

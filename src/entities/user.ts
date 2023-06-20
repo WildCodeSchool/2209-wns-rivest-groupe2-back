@@ -44,6 +44,14 @@ export class User {
   @Column({ nullable: true })
   lastname?: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  uuid?: string;
+
+  @Field()
+  @Column({ type: 'boolean', default: false })
+  public isVerified: boolean;
+
   @Field()
   @Column()
   hashedPassword: string;
