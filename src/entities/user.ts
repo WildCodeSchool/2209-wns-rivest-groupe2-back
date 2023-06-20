@@ -69,6 +69,5 @@ export class User {
   eager: true,
   })
   favorites: Favorite[];
-
 }
 
