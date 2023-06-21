@@ -19,6 +19,7 @@ import { Favorite } from "../entities/favorite";
 import { Email, sendMail } from "../nodemailer/transporter";
 import { v4 as uuidv4 } from 'uuid';
 
+const envUrl = process.env.NODE_ENV === "prod" ? `https://rivest2.wns.wilders.dev/` : process.env.NODE_ENV === "staging" ? `https://staging.rivest2.wns.wilders.dev/` : `http://localhost:3000/`
 
 @ObjectType()
 class LoginResponse {
@@ -128,7 +129,8 @@ export class UserResolver {
       newUser.uuid = uuid;
 
       try {
-        const confirmUrl = `http://localhost:3000/confirmation-email/${newUser.uuid}`; 
+         
+        const confirmUrl = envUrl + `confirmation-email/${newUser.uuid}`; 
         await sendMail(Email.CONFIRMATION_EMAIL, email, {
           confirmUrl
         });
