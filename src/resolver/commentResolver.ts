@@ -13,6 +13,7 @@ export class CommentResolver {
       const comments = await dataSource.manager.find(Comment, {
         relations: ["user", "pointOfInterest"],
       });
+      console.log(comments);
       return comments;
     } catch (error) {
       console.error("Error fetching all comments:", error);

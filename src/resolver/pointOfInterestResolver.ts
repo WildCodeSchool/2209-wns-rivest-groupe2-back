@@ -5,8 +5,6 @@ import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
 
-
-
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
   @Query(() => [PointOfInterest])
@@ -21,10 +19,10 @@ export class PointOfInterestResolver {
         "favorites.user",
       ],
     });
+    console.log(allPois);
+    console.log(allPois[0].comments);
     return allPois;
   }
-
-
 
   // @Query(() => [PointOfInterest])
   //   async getAllPoisAndUser(@Arg("userId") userId: number): Promise<POIWithUser[]>{
@@ -34,7 +32,6 @@ export class PointOfInterestResolver {
   //     const userComment  = await dataSource.manager.findOne(Comment, { where: { userId }})
   //     const userFavorite = await dataSource.manager.findOne(Favorite, { where: { userId }})
 
-
   //     return {
   //       pois: allPois,
   //       userRate: userRate?.rate,
@@ -42,7 +39,6 @@ export class PointOfInterestResolver {
   //       userFavorite: userFavorite?.id
   //     }
   //   }
-
 
   @Authorized()
   @Mutation(() => PointOfInterest)

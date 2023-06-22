@@ -59,11 +59,18 @@ export class PointOfInterest implements IPoi {
 
   @Field(() => Number, { nullable: true })
   public averageRate(): number | null {
-    if (this.rates === null || this.rates === undefined || this.rates.length === 0) {
+    if (
+      this.rates === null ||
+      this.rates === undefined ||
+      this.rates.length === 0
+    ) {
       return null;
     }
 
-    const sum = this.rates.reduce((acc: number, rate: Rate) => acc + rate.rate, 0);
+    const sum = this.rates.reduce(
+      (acc: number, rate: Rate) => acc + rate.rate,
+      0
+    );
     const average = sum / this.rates.length;
 
     return Number(average.toFixed(1));
@@ -104,16 +111,16 @@ export class PointOfInterest implements IPoi {
   @Field(() => [String], { nullable: true })
   @Column({ array: true, nullable: true })
   hoursClose: string;
- 
-  @Field(() => Comment, { nullable: true })
+
+  @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments: Comment[];
 
-  @Field(() => Rate, { nullable: true })
+  @Field(() => [Rate], { nullable: true })
   @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
   public rates: Rate[];
 
-  @Field(() => Favorite, { nullable: true })
+  @Field(() => [Favorite], { nullable: true })
   @OneToMany(() => Favorite, (favorite) => favorite.pointOfInterest)
   public favorites: Favorite[];
 }
