@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
-import { Rate } from "./rate";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
 import { Favorite } from "./favorite";
@@ -60,18 +59,18 @@ export class PointOfInterest implements IPoi {
   @Field(() => Number, { nullable: true })
   public averageRate(): number | null {
     if (
-      this.rates === null ||
-      this.rates === undefined ||
-      this.rates.length === 0
+      this.comments === null ||
+      this.comments === undefined ||
+      this.comments.length === 0
     ) {
       return null;
     }
 
-    const sum = this.rates.reduce(
-      (acc: number, rate: Rate) => acc + rate.rate,
+    const sum = this.comments.reduce(
+      (acc: number, comment: Comment) => acc + comment.rate,
       0
     );
-    const average = sum / this.rates.length;
+    const average = sum / this.comments.length;
 
     return Number(average.toFixed(1));
   }
@@ -115,10 +114,6 @@ export class PointOfInterest implements IPoi {
   @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   public comments: Comment[];
-
-  @Field(() => [Rate], { nullable: true })
-  @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
-  public rates: Rate[];
 
   @Field(() => [Favorite], { nullable: true })
   @OneToMany(() => Favorite, (favorite) => favorite.pointOfInterest)

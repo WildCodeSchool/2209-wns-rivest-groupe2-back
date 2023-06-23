@@ -1,7 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+/* import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { User } from "./user";
+import { Comment } from "./comment";
 
 export enum rateNumbers {
   ONE = 1,
@@ -20,11 +28,11 @@ export class Rate {
 
   @Field()
   @Column()
-  userId: number
+  userId: number;
 
   @Field()
   @Column()
-  poiId: number
+  poiId: number;
 
   @Field()
   @Column({
@@ -42,12 +50,20 @@ export class Rate {
   @Column({ type: "timestamp", nullable: true })
   updateDate: Date;
 
-  @ManyToOne(() => User, (user) => user.rates)
+  @ManyToOne(() => User, (user) => user.rates, { onDelete: "CASCADE" })
   @JoinColumn()
   user: User;
 
-
   @Field(() => PointOfInterest)
-  @ManyToOne(() => PointOfInterest, (pointOfInterest) => pointOfInterest.rates)
+  @ManyToOne(
+    () => PointOfInterest,
+    (pointOfInterest) => pointOfInterest.rates,
+    { onDelete: "CASCADE" }
+  )
   public pointOfInterest: PointOfInterest;
+
+  @Field(() => Comment)
+  @OneToOne(() => Comment, (comment) => comment.rate)
+  comment: Comment;
 }
+ */

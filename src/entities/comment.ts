@@ -9,6 +9,14 @@ import { ObjectType, Field } from "type-graphql";
 import { User } from "./user";
 import { PointOfInterest } from "./pointOfInterest";
 
+export enum rateNumbers {
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+  FOUR = 4,
+  FIVE = 5,
+}
+
 @ObjectType()
 @Entity()
 export class Comment {
@@ -34,14 +42,23 @@ export class Comment {
   @Column()
   text: string;
 
+  @Field()
+  @Column({
+    type: "enum",
+    enum: rateNumbers,
+    default: rateNumbers.FOUR,
+  })
+  rate: rateNumbers;
+
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments, { onDelete: "CASCADE" })
   @JoinColumn()
   user: User;
 
   @ManyToOne(
     () => PointOfInterest,
-    (pointOfInterest) => pointOfInterest.comments
+    (pointOfInterest) => pointOfInterest.comments,
+    { onDelete: "CASCADE" }
   )
   public pointOfInterest!: PointOfInterest;
 }

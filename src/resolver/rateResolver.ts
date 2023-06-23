@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server";
+/* import { ApolloError } from "apollo-server";
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
 import { Rate, rateNumbers } from "../entities/rate";
 import { PointOfInterest } from "../entities/pointOfInterest";
@@ -11,7 +11,7 @@ export class RateResolver {
   async getAllRates(): Promise<Rate[]> {
     try {
       const rates = await dataSource.manager.find(Rate, {
-        relations: ['user', 'pointOfInterest'],
+        relations: ["user", "pointOfInterest"],
       });
       return rates;
     } catch (error) {
@@ -23,7 +23,7 @@ export class RateResolver {
   @Query(() => Rate, { nullable: true })
   async getUserRateForPOI(
     @Arg("poiId", () => Number) poiId: number,
-    @Arg("userId", () => Number) userId: number,
+    @Arg("userId", () => Number) userId: number
   ): Promise<Rate | null> {
     const userRate = await dataSource.manager.findOne(Rate, {
       where: {
@@ -42,35 +42,39 @@ export class RateResolver {
     @Arg("userId", () => Number) userId: number,
     @Arg("rate") rateInput: rateNumbers
   ): Promise<Rate | ApolloError> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id: poiId } });
-    const user = await dataSource.manager.findOne(User, { where: { id: userId } });
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id: poiId },
+    });
+    const user = await dataSource.manager.findOne(User, {
+      where: { id: userId },
+    });
     if (poi === null) {
       throw new ApolloError(`PointID of interest not found`);
     }
-  
+
     if (user === null) {
       throw new ApolloError(`UserID not found`);
     }
-  
+
     let rate = await dataSource.manager.findOne(Rate, {
       where: {
         user: { id: user.id },
         pointOfInterest: { id: poi.id },
       },
     });
-  
+
     if (rate === null) {
       // If rate doesn't exist, create a new one
       rate = new Rate();
       rate.user = user;
-      rate.poiId = poi.id
-      rate.userId = user.id
+      rate.poiId = poi.id;
+      rate.userId = user.id;
       rate.pointOfInterest = poi;
     }
-  
+
     rate.rate = rateInput;
     rate.createDate = new Date();
-  
+
     try {
       const savedRate = await dataSource.manager.save(rate);
       return savedRate;
@@ -78,6 +82,5 @@ export class RateResolver {
       throw new ApolloError(error.message);
     }
   }
-  
-
 }
+ */

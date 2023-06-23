@@ -10,17 +10,8 @@ export class PointOfInterestResolver {
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
     const allPois = await dataSource.manager.find(PointOfInterest, {
-      relations: [
-        "favorites",
-        "comments",
-        "rates",
-        "rates.user",
-        "comments.user",
-        "favorites.user",
-      ],
+      relations: ["favorites", "comments", "comments.user", "favorites.user"],
     });
-    console.log(allPois);
-    console.log(allPois[0].comments);
     return allPois;
   }
 
