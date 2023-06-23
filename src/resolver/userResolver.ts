@@ -109,6 +109,8 @@ export class UserResolver {
 
   @Mutation(() => RegisterResponse)
   async createUser(
+    @Arg("firstname") firstname: string,
+    @Arg("lastname") lastname: string,
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<RegisterResponse> {
@@ -121,6 +123,8 @@ export class UserResolver {
       }
 
       const newUser = new User();
+      newUser.firstname = firstname
+      newUser.lastname = lastname;
       newUser.email = email;
       newUser.hashedPassword = await argon2.hash(password);
 
