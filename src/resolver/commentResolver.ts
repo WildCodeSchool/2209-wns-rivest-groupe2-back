@@ -95,27 +95,57 @@ export class CommentResolver {
         throw new ApolloError(`UserID not found`);
       }
 
-      let comment = await dataSource.manager.findOne(Comment, {
-        where: {
-          user: { id: user.id },
-          pointOfInterest: { id: poi.id },
-        },
+      const newComment = new Comment();
+      newComment.text = commentInput;
+      newComment.rate = rateInput;
+      newComment.user = user;
+      newComment.pointOfInterest = poi;
+      newComment.createDate = new Date();
+
+      const savedComment = await dataSource.manager.save(Comment, newComment);
+      return savedComment;
+    } catch (error: any) {
+      throw new ApolloError(error.message);
+    }
+  }
+
+  @Mutation(() => Comment)
+  async updateCommentPOI(
+    @Arg("poiId", () => Number) poiId: number,
+    @Arg("userId", () => Number) userId: number,
+    @Arg("commentId") commentId: number,
+    @Arg("comment") commentInput: string,
+    @Arg("rate") rateInput: number
+  ): Promise<Comment | ApolloError> {
+    try {
+      const poi = await dataSource.manager.findOne(PointOfInterest, {
+        where: { id: poiId },
+      });
+      const user = await dataSource.manager.findOne(User, {
+        where: { id: userId },
       });
 
-      if (comment !== null) {
-        comment.text = commentInput;
-        comment.rate = rateInput;
-        comment.updateDate = new Date();
-      } else {
-        comment = new Comment();
-        comment.text = commentInput;
-        comment.rate = rateInput;
-        comment.user = user;
-        comment.pointOfInterest = poi;
-        comment.createDate = new Date();
+      if (poi === null) {
+        throw new ApolloError(`PointID of interest not found`);
       }
-      const savedComment = await dataSource.manager.save(Comment, comment);
-      return savedComment;
+
+      if (user === null) {
+        throw new ApolloError(`UserID not found`);
+      }
+
+      const commentToUpdate = await dataSource.manager.findOneByOrFail(
+        Comment,
+        {
+          id: commentId,
+        }
+      );
+
+      commentInput !== null && (commentToUpdate.text = commentInput);
+      rateInput !== null && (commentToUpdate.rate = rateInput);
+      commentToUpdate.updateDate = new Date();
+
+      await dataSource.manager.save(Comment, commentToUpdate);
+      return commentToUpdate;
     } catch (error: any) {
       throw new ApolloError(error.message);
     }
