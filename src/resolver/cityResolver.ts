@@ -53,7 +53,7 @@ export class CityResolver {
       throw new ApolloError(err.message);
     }
   }
-
+ 
   @Mutation(() => City)
   async updateCity(
     @Arg("data") data: UpdatedCityType

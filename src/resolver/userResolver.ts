@@ -8,6 +8,8 @@ import {
   Query,
   Resolver,
   ObjectType,
+  Authorized,
+  Ctx,
 } from "type-graphql";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
@@ -15,6 +17,8 @@ import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
+import { Role } from "../entities/role";
+import { UserContext } from "../interfaces/UserContext";
 
 @ObjectType()
 class LoginResponse {
@@ -90,7 +94,10 @@ export class UserResolver {
 
       if (await argon2.verify(userFromDB.hashedPassword, password)) {
         const token = jwt.sign(
-          { email: userFromDB.email },
+          {
+            email: userFromDB.email,
+            role: userFromDB.role.name,
+          },
           process.env.JWT_SECRET_KEY
         );
         return { token, userFromDB };
@@ -115,14 +122,28 @@ export class UserResolver {
         throw new Error();
       }
 
+      // Recherchez le rôle "free_user" dans la base de données
+      const userRole = await dataSource.manager.findOne(Role, {
+        where: { name: "free_user" },
+      });
+
+      if (userRole == null) {
+        throw new Error('Default role "free_user" not found in the database');
+      }
+
       const newUser = new User();
       newUser.email = email;
       newUser.hashedPassword = await argon2.hash(password);
+      // Attribuez le rôle "free_user" au nouvel utilisateur
+      newUser.role = userRole;
 
       const userFromDB = await dataSource.manager.save(User, newUser);
 
       const token = jwt.sign(
-        { email: userFromDB.email },
+        {
+          email: userFromDB.email,
+          role: userFromDB.role.name,
+        },
         process.env.JWT_SECRET_KEY
       );
       return { token, userFromDB };
@@ -148,11 +169,18 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username !== null && username !== undefined && (userToUpdate.username = username);
-      email !== null &&  email !== undefined && (userToUpdate.email = email);
-      firstname !== null &&  firstname !== undefined && (userToUpdate.firstname = firstname);
-      lastname !== null &&  lastname!== undefined && (userToUpdate.lastname = lastname);
-      password !== null && password !== undefined &&
+      username !== null &&
+        username !== undefined &&
+        (userToUpdate.username = username);
+      email !== null && email !== undefined && (userToUpdate.email = email);
+      firstname !== null &&
+        firstname !== undefined &&
+        (userToUpdate.firstname = firstname);
+      lastname !== null &&
+        lastname !== undefined &&
+        (userToUpdate.lastname = lastname);
+      password !== null &&
+        password !== undefined &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
       profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);
@@ -201,5 +229,100 @@ export class UserResolver {
       console.error("Error fetching user favorites:", error);
       return [];
     }
+  }
+
+  // @Mutation(() => User)
+  // @Authorized(["admin", "city_admin"]) // seuls les utilisateurs ayant le rôle 'admin' ou 'city_admin' peuvent exécuter cette mutation
+  // async updateUserRole(
+  //   @Arg("userId") userId: string, // Modification du type d'userId à string
+  //   @Arg("role") newRoleName: string,
+  //   @Ctx() context: UserContext
+  // ): Promise<User | null> {
+  //   // Convertir l'ID utilisateur en nombre
+  //   const id = Number(userId);
+  //   if (isNaN(id)) {
+  //     throw new Error("Invalid user ID");
+  //   }
+
+  //   // Récupération de l'entité user
+  //   const user = await dataSource.manager.findOne(User, id);
+  //   if (!user) {
+  //     throw new Error("User not found");
+  //   }
+
+  //   // Récupération de l'entité role
+  //   const newRole = await dataSource.manager.findOne(Role, {
+  //     where: { name: newRoleName },
+  //   });
+  //   if (!newRole) {
+  //     throw new Error("Role not found");
+  //   }
+
+  //   // Autorisation spécifique selon le rôle de l'utilisateur actuel
+  //   if (
+  //     context?.user?.role?.name === "admin" &&
+  //     ["admin", "city_admin", "super_user"].includes(newRoleName)
+  //   ) {
+  //     user.role = newRole;
+  //   } else if (
+  //     context?.user?.role?.name === "city_admin" &&
+  //     newRoleName === "super_user"
+  //   ) {
+  //     user.role = newRole;
+  //   } else {
+  //     throw new Error("Unauthorized");
+  //   }
+
+  //   // Sauvegarde de l'entité user mise à jour
+  //   await dataSource.manager.save(user);
+
+  //   return user;
+  // }
+
+  @Mutation(() => User)
+  @Authorized(["admin", "city_admin"])
+  async updateUserRole(
+    @Arg("userId") userId: string,
+    @Arg("role") newRoleName: string,
+    @Ctx() context: UserContext
+  ): Promise<User | null> {
+    const id = Number(userId);
+    if (isNaN(id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const user = await dataSource.manager.findOne(User, { where: { id } });
+    if (user == null) {
+      throw new Error("User not found");
+    }
+
+    const newRole = await dataSource.manager.findOne(Role, {
+      where: { name: newRoleName },
+    });
+    if (newRole == null) {
+      throw new Error("Role not found");
+    }
+
+    if (
+      context?.user?.role?.name === "admin" &&
+      ["admin", "city_admin", "super_user", "free_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else if (
+      context?.user?.role?.name === "city_admin" &&
+      ["super_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else {
+      if (context?.user?.role?.name !== "admin" && context?.user?.role?.name !== "city_admin") {
+        throw new Error("Unauthorized: User does not have sufficient permissions to perform this action.");
+      } else {
+        throw new Error(`Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`);
+      }
+    }
+
+    await dataSource.manager.save(user);
+
+    return user;
   }
 }
