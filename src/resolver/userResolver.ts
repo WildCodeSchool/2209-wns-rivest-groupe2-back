@@ -17,9 +17,14 @@ import { Regex } from "../utils/userRegex";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
 import { Email, sendMail } from "../nodemailer/transporter";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-const envUrl = process.env.NODE_ENV === "prod" ? `https://rivest2.wns.wilders.dev/` : process.env.NODE_ENV === "staging" ? `https://staging.rivest2.wns.wilders.dev/` : `http://localhost:3000/`
+const envUrl =
+  process.env.NODE_ENV === "prod"
+    ? `https://rivest2.wns.wilders.dev/`
+    : process.env.NODE_ENV === "staging"
+    ? `https://staging.rivest2.wns.wilders.dev/`
+    : `http://localhost:3000/`;
 
 @ObjectType()
 class LoginResponse {
@@ -110,6 +115,7 @@ export class UserResolver {
   @Mutation(() => RegisterResponse)
   async createUser(
     @Arg("email") email: string,
+    @Arg("username") username: string,
     @Arg("password") password: string
   ): Promise<RegisterResponse> {
     try {
@@ -122,6 +128,7 @@ export class UserResolver {
 
       const newUser = new User();
       newUser.email = email;
+      newUser.username = username;
       newUser.hashedPassword = await argon2.hash(password);
 
       // uuid (email confirmation logic)
@@ -129,14 +136,12 @@ export class UserResolver {
       newUser.uuid = uuid;
 
       try {
-         
-        const confirmUrl = envUrl + `confirmation-email/${newUser.uuid}`; 
+        const confirmUrl = envUrl + `confirmation-email/${newUser.uuid}`;
         await sendMail(Email.CONFIRMATION_EMAIL, email, {
-          confirmUrl
+          confirmUrl,
         });
-  
       } catch (err) {
-        throw new Error('Une erreur est survenue')
+        throw new Error("Une erreur est survenue");
       }
 
       const userFromDB = await dataSource.manager.save(User, newUser);
@@ -146,8 +151,6 @@ export class UserResolver {
         process.env.JWT_SECRET_KEY
       );
       return { token, userFromDB };
-
-     
     } catch (error) {
       throw new Error("Error try again with an other email or pseudo");
     }
@@ -155,7 +158,7 @@ export class UserResolver {
 
   @Mutation(() => User)
   async confirmUser(@Arg("uuid") uuid: string): Promise<User> {
-    const user = await  dataSource.manager.findOne(User, { where: { uuid } });
+    const user = await dataSource.manager.findOne(User, { where: { uuid } });
     if (user === null) {
       throw new Error("Invalid confirmation link");
     }
@@ -164,7 +167,6 @@ export class UserResolver {
     await dataSource.manager.save(User, user);
     return user;
   }
-  
 
   @Mutation(() => User)
   async updateUser(
@@ -183,11 +185,18 @@ export class UserResolver {
       const userToUpdate = await dataSource.manager.findOneByOrFail(User, {
         id,
       });
-      username !== null && username !== undefined && (userToUpdate.username = username);
+      username !== null &&
+        username !== undefined &&
+        (userToUpdate.username = username);
       email !== null && email !== undefined && (userToUpdate.email = email);
-      firstname !== null && firstname !== undefined && (userToUpdate.firstname = firstname);
-      lastname !== null && lastname !== undefined && (userToUpdate.lastname = lastname);
-      password !== null && password !== undefined &&
+      firstname !== null &&
+        firstname !== undefined &&
+        (userToUpdate.firstname = firstname);
+      lastname !== null &&
+        lastname !== undefined &&
+        (userToUpdate.lastname = lastname);
+      password !== null &&
+        password !== undefined &&
         (userToUpdate.hashedPassword = await argon2.hash(password));
       profilePicture !== null && (userToUpdate.profilePicture = profilePicture);
       await dataSource.manager.save(User, userToUpdate);

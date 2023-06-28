@@ -32,15 +32,15 @@ export class PointOfInterest implements IPoi {
   @Column({ unique: true })
   name: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column()
   address: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column()
   postal: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column({
     type: "enum",
     enum: POIType,
@@ -96,8 +96,8 @@ export class PointOfInterest implements IPoi {
   })
   priceRange: priceRange;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column()
   city: string;
 
   @Field(() => [Comment], { nullable: true })
