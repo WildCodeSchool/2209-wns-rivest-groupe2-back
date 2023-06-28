@@ -4,6 +4,7 @@ import { Comment } from "./comment";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
 import { Favorite } from "./favorite";
+import { OpeningHours } from "./openingHours";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -27,8 +28,8 @@ export class PointOfInterest implements IPoi {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column({ unique: true })
   name: string;
 
   @Field({ nullable: true })
@@ -52,8 +53,8 @@ export class PointOfInterest implements IPoi {
   @Column("float", { array: true, nullable: true })
   coordinates: Point;
 
-  @Field({ nullable: true })
-  @Column({ type: "timestamp", nullable: true })
+  @Field()
+  @Column({ type: "timestamp" })
   creationDate: Date;
 
   @Field(() => Number, { nullable: true })
@@ -99,23 +100,15 @@ export class PointOfInterest implements IPoi {
   @Column({ nullable: true })
   city: string;
 
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  daysOpen: string;
-
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  hoursOpen: string;
-
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  hoursClose: string;
-
   @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
-  public comments: Comment[];
+  comments: Comment[];
 
   @Field(() => [Favorite], { nullable: true })
   @OneToMany(() => Favorite, (favorite) => favorite.pointOfInterest)
-  public favorites: Favorite[];
+  favorites: Favorite[];
+
+  @Field(() => [OpeningHours], { nullable: true })
+  @OneToMany(() => OpeningHours, (openingHours) => openingHours.pointOfInterest)
+  openingHours: OpeningHours[];
 }

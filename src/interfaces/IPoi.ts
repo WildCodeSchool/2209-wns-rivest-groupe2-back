@@ -14,7 +14,4 @@ export interface IPoi {
   description: string;
   priceRange: priceRange;
   city: string;
-  daysOpen: string;
-  hoursOpen: string;
-  hoursClose: string;
 }

@@ -2,6 +2,7 @@ import { Arg, Mutation, Query, Resolver, Authorized } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
+import { OpeningHours } from "../entities/openingHours";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
 
@@ -10,7 +11,13 @@ export class PointOfInterestResolver {
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
     const allPois = await dataSource.manager.find(PointOfInterest, {
-      relations: ["favorites", "comments", "comments.user", "favorites.user"],
+      relations: [
+        "openingHours",
+        "favorites",
+        "comments",
+        "comments.user",
+        "favorites.user",
+      ],
     });
     return allPois;
   }
@@ -31,28 +38,50 @@ export class PointOfInterestResolver {
   //     }
   //   }
 
-  @Authorized()
+  /* @Authorized() */
   @Mutation(() => PointOfInterest)
   async createPoi(
     @Arg("data") data: CreatePoiInput
   ): Promise<PointOfInterest | ApolloError> {
-    const newPoi = new PointOfInterest();
-    newPoi.name = data.name;
-    newPoi.address = data.address;
-    newPoi.postal = data.postal;
-    newPoi.type = data.type;
-    newPoi.coordinates = data.coordinates;
-    newPoi.creationDate = new Date();
-    newPoi.pictureUrl = data.pictureUrl;
-    newPoi.websiteURL = data.websiteURL;
-    newPoi.description = data.description;
-    newPoi.priceRange = data.priceRange;
-    newPoi.daysOpen = data.daysOpen;
-    newPoi.hoursOpen = data.hoursOpen;
-    newPoi.hoursClose = data.hoursClose;
-    newPoi.city = data.city;
-    const savedPoi = await dataSource.manager.save(PointOfInterest, newPoi);
-    return savedPoi;
+    try {
+      const newPoi = new PointOfInterest();
+      newPoi.name = data.name;
+      newPoi.address = data.address;
+      newPoi.postal = data.postal;
+      newPoi.type = data.type;
+      newPoi.coordinates = data.coordinates;
+      newPoi.creationDate = new Date();
+      newPoi.pictureUrl = data.pictureUrl;
+      newPoi.websiteURL = data.websiteURL;
+      newPoi.description = data.description;
+      newPoi.priceRange = data.priceRange;
+      newPoi.city = data.city;
+
+      let savedOpeningHours: OpeningHours[] = [];
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (data.openingHours && data.openingHours.length > 0) {
+        const openingHours = data.openingHours.map((hourInput) => {
+          const newHours = new OpeningHours();
+          newHours.dayOpen = hourInput.dayOpen;
+          newHours.hoursOpen = hourInput.hoursOpen;
+          newHours.hoursClose = hourInput.hoursClose;
+          return newHours;
+        });
+
+        savedOpeningHours = await dataSource.manager.save(
+          OpeningHours,
+          openingHours
+        );
+      }
+
+      newPoi.openingHours = savedOpeningHours;
+
+      const savedPoi = await dataSource.manager.save(PointOfInterest, newPoi);
+      return savedPoi;
+    } catch (error: any) {
+      console.log(error);
+      throw new Error(error);
+    }
   }
 
   @Authorized()
@@ -72,9 +101,6 @@ export class PointOfInterestResolver {
       description,
       priceRange,
       city,
-      daysOpen,
-      hoursOpen,
-      hoursClose,
     } = data;
     try {
       const pointOfInterestToUpdate = await dataSource.manager.findOneByOrFail(
@@ -95,9 +121,6 @@ export class PointOfInterestResolver {
         (pointOfInterestToUpdate.description = description);
       priceRange !== null && (pointOfInterestToUpdate.priceRange = priceRange);
       city !== null && (pointOfInterestToUpdate.city = city);
-      daysOpen !== null && (pointOfInterestToUpdate.daysOpen = daysOpen);
-      hoursOpen !== null && (pointOfInterestToUpdate.hoursOpen = hoursOpen);
-      hoursClose !== null && (pointOfInterestToUpdate.hoursClose = hoursClose);
       await dataSource.manager.save(PointOfInterest, pointOfInterestToUpdate);
       return pointOfInterestToUpdate;
     } catch (err: any) {

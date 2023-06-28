@@ -22,16 +22,15 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column({ unique: true })
   username: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column({
     type: "enum",
     enum: UserType,
     default: UserType.FREEUSER,
-    nullable: true,
   })
   type: UserType;
 
