@@ -13,6 +13,9 @@ class CityType {
 
   @Field({ nullable: true })
   population?: number;
+
+  @Field({ nullable: true })
+  user?: number;
 }
 
 @InputType({ description: "update city data" })
@@ -35,7 +38,8 @@ export class CityResolver {
   @Query(() => [City])
   async getAllCities(): Promise<City[]> {
     return await dataSource.manager.find(City, {
-      relations: { country: true },
+      // relations: { country: true },
+      relations: ["country", "user"],
     });
   }
 
@@ -53,7 +57,7 @@ export class CityResolver {
       throw new ApolloError(err.message);
     }
   }
- 
+
   @Mutation(() => City)
   async updateCity(
     @Arg("data") data: UpdatedCityType

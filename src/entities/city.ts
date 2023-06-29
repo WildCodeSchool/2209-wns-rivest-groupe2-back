@@ -42,7 +42,7 @@ export class City {
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
   public pointOfInterest: PointOfInterest[];
 
-  @Field({ nullable: true })
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.cities)
   @JoinColumn({ name: "user_id" })
   user: User;

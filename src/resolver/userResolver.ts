@@ -19,6 +19,7 @@ import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
 import { Role } from "../entities/role";
 import { UserContext } from "../interfaces/UserContext";
+import { City } from "../entities/city";
 
 @ObjectType()
 class LoginResponse {
@@ -231,54 +232,6 @@ export class UserResolver {
     }
   }
 
-  // @Mutation(() => User)
-  // @Authorized(["admin", "city_admin"]) // seuls les utilisateurs ayant le rôle 'admin' ou 'city_admin' peuvent exécuter cette mutation
-  // async updateUserRole(
-  //   @Arg("userId") userId: string, // Modification du type d'userId à string
-  //   @Arg("role") newRoleName: string,
-  //   @Ctx() context: UserContext
-  // ): Promise<User | null> {
-  //   // Convertir l'ID utilisateur en nombre
-  //   const id = Number(userId);
-  //   if (isNaN(id)) {
-  //     throw new Error("Invalid user ID");
-  //   }
-
-  //   // Récupération de l'entité user
-  //   const user = await dataSource.manager.findOne(User, id);
-  //   if (!user) {
-  //     throw new Error("User not found");
-  //   }
-
-  //   // Récupération de l'entité role
-  //   const newRole = await dataSource.manager.findOne(Role, {
-  //     where: { name: newRoleName },
-  //   });
-  //   if (!newRole) {
-  //     throw new Error("Role not found");
-  //   }
-
-  //   // Autorisation spécifique selon le rôle de l'utilisateur actuel
-  //   if (
-  //     context?.user?.role?.name === "admin" &&
-  //     ["admin", "city_admin", "super_user"].includes(newRoleName)
-  //   ) {
-  //     user.role = newRole;
-  //   } else if (
-  //     context?.user?.role?.name === "city_admin" &&
-  //     newRoleName === "super_user"
-  //   ) {
-  //     user.role = newRole;
-  //   } else {
-  //     throw new Error("Unauthorized");
-  //   }
-
-  //   // Sauvegarde de l'entité user mise à jour
-  //   await dataSource.manager.save(user);
-
-  //   return user;
-  // }
-
   @Mutation(() => User)
   @Authorized(["admin", "city_admin"])
   async updateUserRole(
@@ -314,11 +267,89 @@ export class UserResolver {
     ) {
       user.role = newRole;
     } else {
-      if (context?.user?.role?.name !== "admin" && context?.user?.role?.name !== "city_admin") {
-        throw new Error("Unauthorized: User does not have sufficient permissions to perform this action.");
+      if (
+        context?.user?.role?.name !== "admin" &&
+        context?.user?.role?.name !== "city_admin"
+      ) {
+        throw new Error(
+          "Unauthorized: User does not have sufficient permissions to perform this action."
+        );
       } else {
-        throw new Error(`Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`);
+        throw new Error(
+          `Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`
+        );
       }
+    }
+
+    await dataSource.manager.save(user);
+
+    return user;
+  }
+
+  @Mutation(() => User)
+  @Authorized(["admin", "city_admin"])
+  async updateUserRoleAndCity(
+    @Arg("userId") userId: string,
+    @Arg("role") newRoleName: string,
+    @Arg("cityName", { nullable: true }) cityName: string,
+    @Ctx() context: UserContext
+  ): Promise<User | null> {
+    const id = Number(userId);
+    if (isNaN(id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const user = await dataSource.manager.findOne(User, {
+      where: { id },
+      relations: ["cities"],
+    });
+    if (user == null) {
+      throw new Error("User not found");
+    }
+
+    const newRole = await dataSource.manager.findOne(Role, {
+      where: { name: newRoleName },
+    });
+    if (newRole == null) {
+      throw new Error("Role not found");
+    }
+
+    if (
+      context?.user?.role?.name === "admin" &&
+      ["admin", "city_admin", "super_user", "free_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else if (
+      context?.user?.role?.name === "city_admin" &&
+      ["super_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else {
+      if (
+        context?.user?.role?.name !== "admin" &&
+        context?.user?.role?.name !== "city_admin"
+      ) {
+        throw new Error(
+          "Unauthorized: User does not have sufficient permissions to perform this action."
+        );
+      } else {
+        throw new Error(
+          `Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`
+        );
+      }
+    }
+
+    // If the role is city_admin, assign the city to the user
+    if ((cityName.length > 0) && newRoleName === "city_admin") {
+      const city = await dataSource.manager.findOne(City, {
+        where: { name: cityName },
+      });
+
+      if (city == null) {
+        throw new Error("City not found");
+      }
+
+      user.cities = [city];
     }
 
     await dataSource.manager.save(user);

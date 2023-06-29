@@ -70,6 +70,7 @@ export class User {
   @JoinColumn({ name: "role_id" })
   role: Role;
 
-  @OneToMany(() => City, city => city.user) 
-  cities: City[]; 
+  @Field(() => [City])
+  @OneToMany(() => City, (city) => city.user)
+  cities: City[];
 }
