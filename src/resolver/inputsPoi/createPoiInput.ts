@@ -5,7 +5,10 @@ import { Point } from "geojson";
 @InputType()
 export class OpeningHoursInput {
   @Field()
-  dayOpen: string;
+  value: string;
+
+  @Field()
+  name: string;
 
   @Field(() => [String])
   hoursOpen: string;

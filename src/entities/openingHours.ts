@@ -11,7 +11,11 @@ export class OpeningHours {
 
   @Field()
   @Column()
-  dayOpen: string;
+  value: string;
+
+  @Field()
+  @Column()
+  name: string;
 
   @Field(() => [String])
   @Column({ array: true })

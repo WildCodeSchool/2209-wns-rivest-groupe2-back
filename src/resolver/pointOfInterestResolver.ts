@@ -1,4 +1,9 @@
-import { Arg, Mutation, Query, Resolver, Authorized } from "type-graphql";
+import {
+  Arg,
+  Mutation,
+  Query,
+  Resolver /*,  Authorized */,
+} from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
@@ -62,7 +67,8 @@ export class PointOfInterestResolver {
       if (data.openingHours && data.openingHours.length > 0) {
         const openingHours = data.openingHours.map((hourInput) => {
           const newHours = new OpeningHours();
-          newHours.dayOpen = hourInput.dayOpen;
+          newHours.value = hourInput.value;
+          newHours.name = hourInput.name;
           newHours.hoursOpen = hourInput.hoursOpen;
           newHours.hoursClose = hourInput.hoursClose;
           return newHours;
@@ -84,7 +90,7 @@ export class PointOfInterestResolver {
     }
   }
 
-  @Authorized()
+  /* @Authorized() */
   @Mutation(() => PointOfInterest)
   async updatePoi(
     @Arg("data") data: UpdatePoiInput
@@ -128,7 +134,7 @@ export class PointOfInterestResolver {
     }
   }
 
-  @Authorized()
+  /* @Authorized() */
   @Mutation(() => String)
   async deletePoi(@Arg("id") id: number): Promise<String> {
     try {
