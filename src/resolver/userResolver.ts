@@ -67,7 +67,7 @@ class UpdateUserInput {
 export class UserResolver {
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User);
+    return await dataSource.manager.find(User, { relations: ["cities"] });
   }
 
   @Query(() => User)
@@ -291,7 +291,7 @@ export class UserResolver {
   async updateUserRoleAndCity(
     @Arg("userId") userId: string,
     @Arg("role") newRoleName: string,
-    @Arg("cityName", { nullable: true }) cityName: string,
+    @Arg("cityName", () => [String], { nullable: true }) cityName: string[],
     @Ctx() context: UserContext
   ): Promise<User | null> {
     const id = Number(userId);
@@ -339,21 +339,44 @@ export class UserResolver {
       }
     }
 
-    // If the role is city_admin, assign the city to the user
-    if ((cityName.length > 0) && newRoleName === "city_admin") {
-      const city = await dataSource.manager.findOne(City, {
-        where: { name: cityName },
-      });
+    // // If the role is city_admin, assign the city to the user
+    // if ((cityName.length > 0) && newRoleName === "city_admin") {
+    //   const city = await dataSource.manager.findOne(City, {
+    //     where: { name: cityName },
+    //   });
 
-      if (city == null) {
-        throw new Error("City not found");
+    //   if (city == null) {
+    //     throw new Error("City not found");
+    //   }
+
+    //   user.cities = [city];
+    // }
+
+    if (cityName.length > 0 && newRoleName === "city_admin") {
+      const cities = await Promise.all(
+        cityName.map(async (name:any) => 
+          await dataSource.manager.findOne(City, {
+            where: { name },
+          })
+        )
+      );
+    
+      if (cities.some((city) => city == null)) {
+        throw new Error("One or more cities not found");
       }
-
-      user.cities = [city];
+    
+      user.cities = cities as City[]; // Cast is safe because we've filtered out null values
+    } else if (newRoleName === "city_admin" && (cityName === undefined || cityName.length === 0)) {
+      // if city_admin role but no cityName is provided, clear cities
+      user.cities = [];
+    } else if (newRoleName !== "city_admin") {
+      // if the role is not city_admin, clear cities
+      user.cities = [];
     }
 
     await dataSource.manager.save(user);
 
     return user;
   }
+
 }
