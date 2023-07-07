@@ -1,9 +1,9 @@
 import { InputType, Field } from "type-graphql";
-import { POIType, priceRange } from "../../entities/pointOfInterest";
+import { POIType } from "../../entities/pointOfInterest";
 import { Point } from "geojson";
 
 @InputType()
-export class OpeningHoursInput {
+export class CreateOpeningHoursInput {
   @Field()
   value: string;
 
@@ -47,11 +47,8 @@ export class CreatePoiInput {
   description: string;
 
   @Field({ nullable: true })
-  priceRange: priceRange;
-
-  @Field({ nullable: true })
   city: string;
 
-  @Field(() => [OpeningHoursInput], { nullable: true })
-  openingHours: OpeningHoursInput[];
+  @Field(() => [CreateOpeningHoursInput], { nullable: true })
+  openingHours: CreateOpeningHoursInput[];
 }

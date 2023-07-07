@@ -12,7 +12,6 @@ export const UPDATE_POI = gql`
       pictureUrl
       websiteURL
       description
-      priceRange
       daysOpen
       hoursOpen
       hoursClose

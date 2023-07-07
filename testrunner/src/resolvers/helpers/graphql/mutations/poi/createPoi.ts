@@ -13,7 +13,6 @@ export const CREATE_POI = gql`
       pictureUrl
       websiteURL
       description
-      priceRange
       daysOpen
       hoursOpen
       hoursClose

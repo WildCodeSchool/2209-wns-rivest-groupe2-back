@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import {
   Arg,
   Mutation,
@@ -7,9 +8,9 @@ import {
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
-import { OpeningHours } from "../entities/openingHours";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
+import { OpeningHours } from "../entities/openingHours";
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
@@ -24,24 +25,9 @@ export class PointOfInterestResolver {
         "favorites.user",
       ],
     });
-    return allPois;
+    const sortedPois = allPois.sort((a, b) => a.id - b.id);
+    return sortedPois;
   }
-
-  // @Query(() => [PointOfInterest])
-  //   async getAllPoisAndUser(@Arg("userId") userId: number): Promise<POIWithUser[]>{
-  //     const allPois = await dataSource.manager.find(PointOfInterest)
-
-  //     const userRate = await dataSource.manager.findOne(Rate, { where: { userId }})
-  //     const userComment  = await dataSource.manager.findOne(Comment, { where: { userId }})
-  //     const userFavorite = await dataSource.manager.findOne(Favorite, { where: { userId }})
-
-  //     return {
-  //       pois: allPois,
-  //       userRate: userRate?.rate,
-  //       userComment: userComment?.text,
-  //       userFavorite: userFavorite?.id
-  //     }
-  //   }
 
   /* @Authorized() */
   @Mutation(() => PointOfInterest)
@@ -59,11 +45,9 @@ export class PointOfInterestResolver {
       newPoi.pictureUrl = data.pictureUrl;
       newPoi.websiteURL = data.websiteURL;
       newPoi.description = data.description;
-      newPoi.priceRange = data.priceRange;
       newPoi.city = data.city;
 
       let savedOpeningHours: OpeningHours[] = [];
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (data.openingHours && data.openingHours.length > 0) {
         const openingHours = data.openingHours.map((hourInput) => {
           const newHours = new OpeningHours();
@@ -95,40 +79,76 @@ export class PointOfInterestResolver {
   async updatePoi(
     @Arg("data") data: UpdatePoiInput
   ): Promise<PointOfInterest | ApolloError> {
-    const {
-      id,
-      name,
-      address,
-      postal,
-      type,
-      coordinates,
-      pictureUrl,
-      websiteURL,
-      description,
-      priceRange,
-      city,
-    } = data;
     try {
-      const pointOfInterestToUpdate = await dataSource.manager.findOneByOrFail(
+      const poiFromDb = await dataSource.manager.findOneOrFail(
         PointOfInterest,
         {
-          id,
+          where: {
+            id: data.id,
+          },
+          relations: {
+            openingHours: true,
+          },
         }
       );
-      name !== null && (pointOfInterestToUpdate.name = name);
-      address !== null && (pointOfInterestToUpdate.address = address);
-      postal !== null && (pointOfInterestToUpdate.postal = postal);
-      type !== null && (pointOfInterestToUpdate.type = type);
-      coordinates !== null &&
-        (pointOfInterestToUpdate.coordinates = coordinates);
-      pictureUrl !== null && (pointOfInterestToUpdate.pictureUrl = pictureUrl);
-      websiteURL !== null && (pointOfInterestToUpdate.websiteURL = websiteURL);
-      description !== null &&
-        (pointOfInterestToUpdate.description = description);
-      priceRange !== null && (pointOfInterestToUpdate.priceRange = priceRange);
-      city !== null && (pointOfInterestToUpdate.city = city);
-      await dataSource.manager.save(PointOfInterest, pointOfInterestToUpdate);
-      return pointOfInterestToUpdate;
+
+      if (data.name !== null) poiFromDb.name = data.name;
+      if (data.address !== null) poiFromDb.address = data.address;
+      if (data.postal !== null) poiFromDb.postal = data.postal;
+      if (data.type !== null) poiFromDb.type = data.type;
+      if (data.coordinates !== null) poiFromDb.coordinates = data.coordinates;
+      if (data.pictureUrl !== null) poiFromDb.pictureUrl = data.pictureUrl;
+      if (data.websiteURL !== null) poiFromDb.websiteURL = data.websiteURL;
+      if (data.description !== null) poiFromDb.description = data.description;
+      if (data.city !== null) poiFromDb.city = data.city;
+
+      let savedOpeningHours: OpeningHours[] = [];
+      if (data.openingHours && data.openingHours.length > 0) {
+        if (poiFromDb?.openingHours.length > 0) {
+          poiFromDb.openingHours.map(async (hourInput) => {
+            const deletedOpeningHours = await dataSource
+              .getRepository(OpeningHours)
+              .delete({ id: hourInput.id });
+
+            if (deletedOpeningHours.affected === 0) {
+              throw new Error("Could not delete the opening hours.");
+            }
+            console.log(`Opening Hours with id: ${hourInput.id} deleted`);
+          });
+        }
+
+        const newOpeningHours = data.openingHours.map((hourInput) => {
+          const newHours = new OpeningHours();
+          newHours.value = hourInput.value;
+          newHours.name = hourInput.name;
+          newHours.hoursOpen = hourInput.hoursOpen;
+          newHours.hoursClose = hourInput.hoursClose;
+          return newHours;
+        });
+
+        savedOpeningHours = await dataSource.manager.save(
+          OpeningHours,
+          newOpeningHours
+        );
+      }
+
+      if (data.openingHours && data.openingHours.length > 0)
+        poiFromDb.openingHours = savedOpeningHours;
+
+      await dataSource.manager.save(PointOfInterest, poiFromDb);
+
+      const updatedPoi = await dataSource.manager.findOneOrFail(
+        PointOfInterest,
+        {
+          where: {
+            id: data.id,
+          },
+          relations: {
+            openingHours: true,
+          },
+        }
+      );
+      return updatedPoi;
     } catch (err: any) {
       throw new ApolloError(err.message);
     }
@@ -138,7 +158,27 @@ export class PointOfInterestResolver {
   @Mutation(() => String)
   async deletePoi(@Arg("id") id: number): Promise<String> {
     try {
-      await dataSource.manager.delete(PointOfInterest, { id });
+      const poiFromDb = await dataSource.manager.find(PointOfInterest, {
+        where: {
+          id,
+        },
+        relations: {
+          comments: true,
+          favorites: true,
+        },
+      });
+
+      if (poiFromDb === undefined || poiFromDb[0] === undefined) {
+        throw new Error("No point of interest found with this id");
+      }
+
+      const deletedPoi = await dataSource
+        .getRepository(PointOfInterest)
+        .delete({ id });
+
+      if (deletedPoi.affected === 0) {
+        throw new Error("Could not delete the point of interest.");
+      }
       return "Poi deleted";
     } catch (err: any) {
       throw new ApolloError(err.message);

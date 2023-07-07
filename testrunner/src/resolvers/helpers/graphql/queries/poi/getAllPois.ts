@@ -14,7 +14,6 @@ export const GET_ALL_POIS = gql`
       pictureUrl
       websiteURL
       description
-      priceRange
       city
       daysOpen
       hoursOpen

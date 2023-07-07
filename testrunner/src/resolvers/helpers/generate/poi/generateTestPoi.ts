@@ -14,7 +14,6 @@ export const generateTestPoi = async (userToken: string): Promise<IPoi> => {
         coordinates: [35, 2],
         websiteURL: "http://test.com",
         description: "Je suis une description",
-        priceRange: "$",
         daysOpen: ["tuesday", "wednesday", "thursday", "friday", "saturday"],
         hoursOpen: ["11:30"],
         hoursClose: ["14:00"],

@@ -45,7 +45,6 @@ describe("Point Of Interest resolver", () => {
           coordinates: [35, 2],
           websiteURL: "http://test.com",
           description: "Je suis une description",
-          priceRange: "$",
           daysOpen: ["tuesday", "wednesday", "thursday", "friday", "saturday"],
           hoursOpen: ["11:30"],
           hoursClose: ["14:00"],
@@ -66,7 +65,6 @@ describe("Point Of Interest resolver", () => {
     expect(res.data.createPoi.coordinates).toEqual([35, 2]);
     expect(res.data.createPoi.websiteURL).toEqual("http://test.com");
     expect(res.data.createPoi.description).toEqual("Je suis une description");
-    expect(res.data.createPoi.priceRange).toEqual("$");
     expect(res.data.createPoi.daysOpen).toEqual([
       "tuesday",
       "wednesday",
@@ -93,7 +91,6 @@ describe("Point Of Interest resolver", () => {
             coordinates: [35, 2],
             websiteURL: "http://test.com",
             description: "Je suis une description",
-            priceRange: "$",
             daysOpen: [
               "tuesday",
               "wednesday",

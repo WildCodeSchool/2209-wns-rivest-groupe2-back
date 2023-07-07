@@ -15,12 +15,6 @@ export enum POIType {
   MUSEUM = "musee",
 }
 
-export enum priceRange {
-  LOW = "$",
-  MEDIUM = "$$",
-  HIGH = "$$$",
-}
-
 @ObjectType()
 @Entity()
 export class PointOfInterest implements IPoi {
@@ -87,14 +81,6 @@ export class PointOfInterest implements IPoi {
   @Field({ nullable: true })
   @Column({ nullable: true })
   description: string;
-
-  @Field({ nullable: true })
-  @Column({
-    nullable: true,
-    type: "enum",
-    enum: priceRange,
-  })
-  priceRange: priceRange;
 
   @Field()
   @Column()
