@@ -15,9 +15,13 @@ export const GET_ALL_POIS = gql`
       websiteURL
       description
       city
-      daysOpen
-      hoursOpen
-      hoursClose
+      openingHours {
+        id
+        value
+        name
+        hoursOpen
+        hoursClose
+      }
     }
   }
 `;

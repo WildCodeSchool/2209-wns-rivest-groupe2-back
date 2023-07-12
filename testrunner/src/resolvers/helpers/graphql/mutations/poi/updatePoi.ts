@@ -12,10 +12,13 @@ export const UPDATE_POI = gql`
       pictureUrl
       websiteURL
       description
-      daysOpen
-      hoursOpen
-      hoursClose
       city
+      openingHours {
+        value
+        name
+        hoursOpen
+        hoursClose
+      }
     }
   }
 `;

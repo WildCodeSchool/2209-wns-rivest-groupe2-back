@@ -7,10 +7,11 @@ export const generateTestUser = async (): Promise<ITestUser> => {
     mutation: CREATE_USER,
     variables: {
       email: `test${Math.floor(Math.random() * 1000000)}@test.com`,
+      username: `test${Math.floor(Math.random() * 1000000)}`,
       password: "testTest123!",
     },
     fetchPolicy: "no-cache",
   });
 
-  return res.data?.createUser.userFromDB;
+  return res.data?.createUserTestRunner.userFromDB;
 };

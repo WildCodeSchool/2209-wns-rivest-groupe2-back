@@ -16,14 +16,20 @@ describe("User resolver", () => {
       variables: {
         email: "test123@test.com",
         password: "testTest123!",
+        username: "test123",
       },
       fetchPolicy: "no-cache",
     });
 
-    expect(res.data?.createUser.userFromDB).toEqual({
-      __typename: "User",
-      email: "test123@test.com",
-    });
+    expect(res.data?.createUserTestRunner.userFromDB.email).toEqual(
+      "test123@test.com"
+    );
+    expect(res.data?.createUserTestRunner.userFromDB.firstname).toEqual(null);
+    expect(res.data?.createUserTestRunner.userFromDB.lastname).toEqual(null);
+    expect(res.data?.createUserTestRunner.userFromDB.type).toEqual("freeUser");
+    expect(res.data?.createUserTestRunner.userFromDB.username).toEqual(
+      "test123"
+    );
   });
 
   let userId: number;
@@ -54,11 +60,11 @@ describe("User resolver", () => {
     expect(res.data?.updateUser).toEqual({
       __typename: "User",
       email: "test123@test.com",
-      id: userId,
-      username: "supertoto",
-      type: "freeUser",
       firstname: "toto",
+      id: userId,
       lastname: "tata",
+      type: "freeUser",
+      username: "supertoto",
     });
   });
 
@@ -71,11 +77,11 @@ describe("User resolver", () => {
     expect(res.data?.getUserById).toEqual({
       __typename: "User",
       email: "test123@test.com",
-      id: userId,
-      username: "supertoto",
-      type: "freeUser",
       firstname: "toto",
+      id: userId,
       lastname: "tata",
+      type: "freeUser",
+      username: "supertoto",
     });
   });
 });
