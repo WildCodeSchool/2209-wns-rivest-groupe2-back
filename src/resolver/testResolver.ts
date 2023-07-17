@@ -3,9 +3,9 @@ import { City } from "../entities/city";
 import { Comment } from "../entities/comment";
 import { Country } from "../entities/country";
 import { PointOfInterest } from "../entities/pointOfInterest";
-import { Rate } from "../entities/rate";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
+import { Favorite } from "../entities/favorite";
 /* import { USER_ROLES } from "../utils/userRoles"; */
 
 @Resolver()
@@ -20,8 +20,8 @@ export class DeleteAllEntitiesResolver {
     await dataSource.manager.delete(City, {});
     await dataSource.manager.delete(Comment, {});
     await dataSource.manager.delete(Country, {});
+    await dataSource.manager.delete(Favorite, {});
     await dataSource.manager.delete(PointOfInterest, {});
-    await dataSource.manager.delete(Rate, {});
     await dataSource.manager.delete(User, {});
 
     return "All entities deleted successfully";

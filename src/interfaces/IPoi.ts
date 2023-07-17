@@ -1,4 +1,4 @@
-import { POIType, priceRange } from "../entities/pointOfInterest";
+import { POIType } from "../entities/pointOfInterest";
 import { Point } from "geojson";
 
 export interface IPoi {
@@ -12,9 +12,5 @@ export interface IPoi {
   pictureUrl: string;
   websiteURL: string;
   description: string;
-  priceRange: priceRange;
   city: string;
-  daysOpen: string;
-  hoursOpen: string;
-  hoursClose: string;
 }

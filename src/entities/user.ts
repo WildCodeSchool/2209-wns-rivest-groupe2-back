@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
-import { Rate } from "./rate";
 import { Favorite } from "./favorite";
 
 export enum UserType {
@@ -23,16 +22,15 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column({ unique: true })
   username: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column({
     type: "enum",
     enum: UserType,
     default: UserType.FREEUSER,
-    nullable: true,
   })
   type: UserType;
 
@@ -49,7 +47,7 @@ export class User {
   uuid?: string;
 
   @Field()
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   public isVerified: boolean;
 
   @Field()
@@ -60,22 +58,17 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
+  @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.user, {
-    cascade: true,
+    onDelete: "CASCADE",
     eager: true,
   })
   comments: Comment[];
 
-  @OneToMany(() => Rate, (rate) => rate.user, {
-  cascade: true,
-  eager: true,
-  })
-  rates: Rate[];
-
+  @Field(() => [Favorite])
   @OneToMany(() => Favorite, (favorite) => favorite.user, {
-  cascade: true,
-  eager: true,
+    onDelete: "CASCADE",
+    eager: true,
   })
   favorites: Favorite[];
 }
-
