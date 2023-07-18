@@ -339,19 +339,6 @@ export class UserResolver {
       }
     }
 
-    // // If the role is city_admin, assign the city to the user
-    // if ((cityName.length > 0) && newRoleName === "city_admin") {
-    //   const city = await dataSource.manager.findOne(City, {
-    //     where: { name: cityName },
-    //   });
-
-    //   if (city == null) {
-    //     throw new Error("City not found");
-    //   }
-
-    //   user.cities = [city];
-    // }
-
     if (cityName.length > 0 && newRoleName === "city_admin") {
       const cities = await Promise.all(
         cityName.map(async (name:any) => 
