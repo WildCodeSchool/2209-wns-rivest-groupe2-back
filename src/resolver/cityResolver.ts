@@ -1,4 +1,12 @@
-import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Field,
+  InputType,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { City } from "../entities/city";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
@@ -7,44 +15,26 @@ import { ApolloError } from "apollo-server";
 class CityType {
   @Field()
   name: string;
-
-  @Field({ nullable: true })
-  currentLocation?: string;
-
-  @Field({ nullable: true })
-  population?: number;
 }
 
 @InputType({ description: "update city data" })
-class UpdatedCityType {
+class UpdatedCityType extends CityType {
   @Field()
   id: number;
-
-  @Field({ nullable: true })
-  name?: string;
-
-  @Field({ nullable: true })
-  currentLocation?: string;
-
-  @Field({ nullable: true })
-  population?: number;
 }
 
 @Resolver(City)
 export class CityResolver {
   @Query(() => [City])
   async getAllCities(): Promise<City[]> {
-    return await dataSource.manager.find(City, {
-      relations: { country: true },
-    });
+    return await dataSource.manager.find(City);
   }
 
+  @Authorized()
   @Mutation(() => City)
   async createCity(@Arg("data") data: CityType): Promise<City | ApolloError> {
     const newCity = new City();
     newCity.name = data.name;
-    newCity.currentLocation = data.currentLocation;
-    newCity.population = data.population;
 
     try {
       const cityFromDB = await dataSource.manager.save(City, newCity);
@@ -54,19 +44,17 @@ export class CityResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => City)
   async updateCity(
     @Arg("data") data: UpdatedCityType
   ): Promise<City | ApolloError> {
-    const { id, name, currentLocation, population } = data;
+    const { id, name } = data;
     try {
       const cityToUpdate = await dataSource.manager.findOneByOrFail(City, {
         id,
       });
       name !== null && name !== undefined && (cityToUpdate.name = name);
-      currentLocation !== null &&
-        (cityToUpdate.currentLocation = currentLocation);
-      population !== null && (cityToUpdate.population = population);
 
       await dataSource.manager.save(City, cityToUpdate);
       return cityToUpdate;
@@ -75,6 +63,7 @@ export class CityResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => String)
   async deleteCity(@Arg("id") id: number): Promise<String | ApolloError> {
     try {

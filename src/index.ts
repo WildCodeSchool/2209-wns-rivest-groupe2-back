@@ -30,6 +30,7 @@ const start = async (): Promise<void> => {
       DeleteAllEntitiesResolver,
     ],
     authChecker: ({ context }) => {
+      console.log("context", context);
       if (context.user.email === undefined) {
         return false;
       } else return true;

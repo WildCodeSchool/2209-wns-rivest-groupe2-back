@@ -1,13 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  Index,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
-import { Country } from "./country";
 import { PointOfInterest } from "./pointOfInterest";
 
 @ObjectType()
@@ -18,24 +10,8 @@ export class City {
   id: number;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   name: string;
-
-  @Index({ spatial: true })
-  @Column({
-    type: "geometry",
-    srid: 4326,
-    nullable: true,
-    spatialFeatureType: "Point",
-  })
-  currentLocation?: string;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  population?: number;
-
-  @ManyToOne(() => Country, (country) => country.cities)
-  public country: Country;
 
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
   public pointOfInterest: PointOfInterest[];

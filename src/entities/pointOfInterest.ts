@@ -1,10 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
 import { Favorite } from "./favorite";
 import { OpeningHours } from "./openingHours";
+import { City } from "./city";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -82,10 +89,6 @@ export class PointOfInterest implements IPoi {
   @Column({ nullable: true })
   description: string;
 
-  @Field()
-  @Column()
-  city: string;
-
   @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
   comments: Comment[];
@@ -97,4 +100,10 @@ export class PointOfInterest implements IPoi {
   @Field(() => [OpeningHours], { nullable: true })
   @OneToMany(() => OpeningHours, (openingHours) => openingHours.pointOfInterest)
   openingHours: OpeningHours[];
+
+  @Field(() => City, { nullable: true })
+  @ManyToOne(() => City, (city) => city.pointOfInterest, {
+    onDelete: "CASCADE",
+  })
+  city: City;
 }
