@@ -9,12 +9,6 @@ enum POIType {
   MUSEUM = "musee",
 }
 
-enum priceRange {
-  LOW = "$",
-  MEDIUM = "$$",
-  HIGH = "$$$",
-}
-
 export interface IPoi {
   id: number;
   name: string;
@@ -26,7 +20,6 @@ export interface IPoi {
   pictureUrl: string;
   websiteURL: string;
   description: string;
-  priceRange: priceRange;
   city: string;
   daysOpen: string;
   hoursOpen: string;

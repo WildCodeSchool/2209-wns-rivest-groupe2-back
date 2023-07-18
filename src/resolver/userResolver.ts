@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import {
@@ -20,6 +21,15 @@ import { Favorite } from "../entities/favorite";
 import { Role } from "../entities/role";
 import { UserContext } from "../interfaces/UserContext";
 import { City } from "../entities/city";
+import { Email, sendMail } from "../nodemailer/transporter";
+import { v4 as uuidv4 } from "uuid";
+
+const envUrl =
+  process.env.NODE_ENV === "prod"
+    ? `https://rivest2.wns.wilders.dev/`
+    : process.env.NODE_ENV === "staging"
+    ? `https://staging.rivest2.wns.wilders.dev/`
+    : `http://localhost:3000/`;
 
 @ObjectType()
 class LoginResponse {
@@ -113,6 +123,7 @@ export class UserResolver {
   @Mutation(() => RegisterResponse)
   async createUser(
     @Arg("email") email: string,
+    @Arg("username") username: string,
     @Arg("password") password: string
   ): Promise<RegisterResponse> {
     try {
@@ -134,9 +145,23 @@ export class UserResolver {
 
       const newUser = new User();
       newUser.email = email;
+      newUser.username = username;
       newUser.hashedPassword = await argon2.hash(password);
       // Attribuez le rôle "free_user" au nouvel utilisateur
       newUser.role = userRole;
+
+      // uuid (email confirmation logic)
+      const uuid = uuidv4();
+      newUser.uuid = uuid;
+
+      try {
+        const confirmUrl = envUrl + `confirmation-email/${newUser.uuid}`;
+        await sendMail(Email.CONFIRMATION_EMAIL, email, {
+          confirmUrl,
+        });
+      } catch (err) {
+        throw new Error("Une erreur est survenue");
+      }
 
       const userFromDB = await dataSource.manager.save(User, newUser);
 
@@ -151,6 +176,18 @@ export class UserResolver {
     } catch (error) {
       throw new Error("Error try again with an other email or pseudo");
     }
+  }
+
+  @Mutation(() => User)
+  async confirmUser(@Arg("uuid") uuid: string): Promise<User> {
+    const user = await dataSource.manager.findOne(User, { where: { uuid } });
+    if (user === null) {
+      throw new Error("Invalid confirmation link");
+    }
+    user.isVerified = true;
+    user.uuid = undefined;
+    await dataSource.manager.save(User, user);
+    return user;
   }
 
   @Mutation(() => User)
@@ -366,4 +403,36 @@ export class UserResolver {
     return user;
   }
 
+  @Mutation(() => RegisterResponse)
+  async createUserTestRunner(
+    @Arg("email") email: string,
+    @Arg("username") username: string,
+    @Arg("password") password: string
+  ): Promise<RegisterResponse> {
+    try {
+      if (!Regex.email(email) || !Regex.password(password)) {
+        throw Error("Invalid email, password or pseudo");
+      }
+      if (process.env.JWT_SECRET_KEY === undefined) {
+        throw new Error();
+      }
+
+      const newUser = new User();
+      newUser.email = email;
+      newUser.username = username;
+      newUser.hashedPassword = await argon2.hash(password);
+      newUser.isVerified = true;
+      newUser.uuid = `${Math.floor(Math.random() * 1000000)}`;
+
+      const userFromDB = await dataSource.manager.save(User, newUser);
+
+      const token = jwt.sign(
+        { email: userFromDB.email },
+        process.env.JWT_SECRET_KEY
+      );
+      return { token, userFromDB };
+    } catch (error) {
+      throw new Error("Error try again with an other email or pseudo");
+    }
+  }
 }

@@ -8,10 +8,10 @@ import {
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
-import { Rate } from "./rate";
 import { Favorite } from "./favorite";
 import { Role } from "./role";
 import { City } from "./city";
+import { Rate } from "./rate";
 
 @ObjectType()
 @Entity()
@@ -24,8 +24,8 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column({ unique: true })
   username: string;
 
   @Field({ nullable: true })
@@ -38,14 +38,23 @@ export class User {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
+  uuid?: string;
+
+  @Field()
+  @Column({ type: "boolean", default: false })
+  public isVerified: boolean;
+
+  @Field()
+  @Column()
   hashedPassword: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
   profilePicture?: string;
 
+  @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.user, {
-    cascade: true,
+    onDelete: "CASCADE",
     eager: true,
   })
   comments: Comment[];

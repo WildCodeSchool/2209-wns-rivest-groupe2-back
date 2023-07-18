@@ -7,7 +7,6 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolver/userResolver";
 import { CityResolver } from "./resolver/cityResolver";
 import { PointOfInterestResolver } from "./resolver/pointOfInterestResolver";
-import { RateResolver } from "./resolver/rateResolver";
 import { CommentResolver } from "./resolver/commentResolver";
 import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
 import { IDecodedJWT } from "./interfaces/IDecodedJWT";
@@ -25,7 +24,6 @@ const start = async (): Promise<void> => {
   const schema = await buildSchema({
     resolvers: [
       UserResolver,
-      RateResolver,
       CommentResolver,
       CityResolver,
       FavoriteResolver,

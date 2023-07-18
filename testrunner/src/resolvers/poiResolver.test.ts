@@ -45,10 +45,50 @@ describe("Point Of Interest resolver", () => {
           coordinates: [35, 2],
           websiteURL: "http://test.com",
           description: "Je suis une description",
-          priceRange: "$",
-          daysOpen: ["tuesday", "wednesday", "thursday", "friday", "saturday"],
-          hoursOpen: ["11:30"],
-          hoursClose: ["14:00"],
+          openingHours: [
+            {
+              value: "monday",
+              name: "Lundi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "tuesday",
+              name: "Mardi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "wednesday",
+              name: "Mercredi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "thursday",
+              name: "Jeudi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "friday",
+              name: "Vendredi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "saturday",
+              name: "Samedi",
+              hoursOpen: ["Fermé"],
+              hoursClose: [],
+            },
+            {
+              value: "sunday",
+              name: "Dimanche",
+              hoursOpen: ["Fermé"],
+              hoursClose: [],
+            },
+          ],
           city: "Paris",
         },
       },
@@ -66,16 +106,6 @@ describe("Point Of Interest resolver", () => {
     expect(res.data.createPoi.coordinates).toEqual([35, 2]);
     expect(res.data.createPoi.websiteURL).toEqual("http://test.com");
     expect(res.data.createPoi.description).toEqual("Je suis une description");
-    expect(res.data.createPoi.priceRange).toEqual("$");
-    expect(res.data.createPoi.daysOpen).toEqual([
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ]);
-    expect(res.data.createPoi.hoursOpen).toEqual(["11:30"]);
-    expect(res.data.createPoi.hoursClose).toEqual(["14:00"]);
     expect(res.data.createPoi.city).toEqual("Paris");
   });
 
@@ -93,16 +123,50 @@ describe("Point Of Interest resolver", () => {
             coordinates: [35, 2],
             websiteURL: "http://test.com",
             description: "Je suis une description",
-            priceRange: "$",
-            daysOpen: [
-              "tuesday",
-              "wednesday",
-              "thursday",
-              "friday",
-              "saturday",
+            openingHours: [
+              {
+                value: "monday",
+                name: "Lundi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "tuesday",
+                name: "Mardi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "wednesday",
+                name: "Mercredi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "thursday",
+                name: "Jeudi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "friday",
+                name: "Vendredi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "saturday",
+                name: "Samedi",
+                hoursOpen: ["Fermé"],
+                hoursClose: [],
+              },
+              {
+                value: "sunday",
+                name: "Dimanche",
+                hoursOpen: ["Fermé"],
+                hoursClose: [],
+              },
             ],
-            hoursOpen: ["11:30"],
-            hoursClose: ["14:00"],
             city: "Paris",
           },
         },

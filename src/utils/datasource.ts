@@ -3,11 +3,12 @@ import { City } from "../entities/city";
 import { Comment } from "../entities/comment";
 import { Country } from "../entities/country";
 import { PointOfInterest } from "../entities/pointOfInterest";
-import { Rate } from "../entities/rate";
 import { User } from "../entities/user";
 import * as dotenv from "dotenv";
 import { Favorite } from "../entities/favorite";
 import { Role } from "../entities/role";
+import { OpeningHours } from "../entities/openingHours";
+import { Rate } from "../entities/rate";
 
 dotenv.config();
 
@@ -25,7 +26,17 @@ const dataSource = new DataSource({
   password: dbPassword,
   database: "postgres",
   synchronize: true,
-  entities: [City, Comment, Country, PointOfInterest, Rate, User, Favorite, Role],
+  entities: [
+    City,
+    Comment,
+    Country,
+    PointOfInterest,
+    Rate,
+    User,
+    Favorite,
+    OpeningHours,
+    Role,
+  ],
 });
 
 export default dataSource;
