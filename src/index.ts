@@ -13,6 +13,7 @@ import { IDecodedJWT } from "./interfaces/IDecodedJWT";
 import { User } from "./entities/user";
 import { UserContext } from "./interfaces/UserContext";
 import { FavoriteResolver } from "./resolver/favoriteResolver";
+import { RoleResolver } from "./resolver/roleResolver";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ const start = async (): Promise<void> => {
       FavoriteResolver,
       PointOfInterestResolver,
       DeleteAllEntitiesResolver,
+      RoleResolver,
     ],
     authChecker: ({ context }) => {
       if (context.user.email === undefined) {

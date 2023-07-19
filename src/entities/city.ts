@@ -5,10 +5,12 @@ import {
   ManyToOne,
   OneToMany,
   Index,
+  JoinColumn,
 } from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Country } from "./country";
 import { PointOfInterest } from "./pointOfInterest";
+import { User } from "./user";
 
 @ObjectType()
 @Entity()
@@ -39,4 +41,9 @@ export class City {
 
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
   public pointOfInterest: PointOfInterest[];
+
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User, (user) => user.cities)
+  @JoinColumn({ name: "user_id" })
+  user: User;
 }

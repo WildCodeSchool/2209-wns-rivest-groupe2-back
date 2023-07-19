@@ -6,6 +6,7 @@ import { PointOfInterest } from "../entities/pointOfInterest";
 import { User } from "../entities/user";
 import * as dotenv from "dotenv";
 import { Favorite } from "../entities/favorite";
+import { Role } from "../entities/role";
 import { OpeningHours } from "../entities/openingHours";
 
 dotenv.config();
@@ -32,6 +33,7 @@ const dataSource = new DataSource({
     User,
     Favorite,
     OpeningHours,
+    Role,
   ],
 });
 
