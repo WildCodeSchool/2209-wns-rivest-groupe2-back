@@ -1,15 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
 import { Favorite } from "./favorite";
-
-export enum UserType {
-  SUPERADMIN = "superAdmin",
-  ADMINCITY = "adminCity",
-  SUPERUSER = "superUser",
-  PAIDUSER = "paidUser",
-  FREEUSER = "freeUser",
-}
+import { Role } from "./role";
+import { City } from "./city";
 
 @ObjectType()
 @Entity()
@@ -18,21 +19,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   username: string;
-
-  @Field()
-  @Column({
-    type: "enum",
-    enum: UserType,
-    default: UserType.FREEUSER,
-  })
-  type: UserType;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -65,10 +58,21 @@ export class User {
   })
   comments: Comment[];
 
-  @Field(() => [Favorite])
   @OneToMany(() => Favorite, (favorite) => favorite.user, {
-    onDelete: "CASCADE",
+    cascade: true,
     eager: true,
   })
   favorites: Favorite[];
+
+  @Field(() => Role)
+  @ManyToOne(() => Role, (role) => role.users, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn({ name: "role_id" })
+  role: Role;
+
+  @Field(() => [City])
+  @OneToMany(() => City, (city) => city.user)
+  cities: City[];
 }

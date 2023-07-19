@@ -19,6 +19,9 @@ class CityType {
 
   @Field(() => [Number])
   coordinates: Point;
+
+  @Field({ nullable: true })
+  user?: number;
 }
 
 @InputType({ description: "update city data" })
@@ -31,7 +34,10 @@ class UpdatedCityType extends CityType {
 export class CityResolver {
   @Query(() => [City])
   async getAllCities(): Promise<City[]> {
-    return await dataSource.manager.find(City);
+    return await dataSource.manager.find(City, {
+      // relations: { country: true },
+      relations: ["user"],
+    });
   }
 
   @Authorized()

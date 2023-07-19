@@ -1,7 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { PointOfInterest } from "./pointOfInterest";
 import { Point } from "geojson";
+import { User } from "./user";
 
 @ObjectType()
 @Entity()
@@ -20,4 +28,9 @@ export class City {
 
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
   public pointOfInterest: PointOfInterest[];
+
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User, (user) => user.cities)
+  @JoinColumn({ name: "user_id" })
+  user: User;
 }

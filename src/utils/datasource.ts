@@ -5,6 +5,7 @@ import { PointOfInterest } from "../entities/pointOfInterest";
 import { User } from "../entities/user";
 import * as dotenv from "dotenv";
 import { Favorite } from "../entities/favorite";
+import { Role } from "../entities/role";
 import { OpeningHours } from "../entities/openingHours";
 
 dotenv.config();
@@ -23,7 +24,15 @@ const dataSource = new DataSource({
   password: dbPassword,
   database: "postgres",
   synchronize: true,
-  entities: [City, Comment, PointOfInterest, User, Favorite, OpeningHours],
+  entities: [
+    City,
+    Comment,
+    PointOfInterest,
+    User,
+    Favorite,
+    OpeningHours,
+    Role,
+  ],
 });
 
 export default dataSource;
