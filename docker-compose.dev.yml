@@ -40,8 +40,6 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      # images:
-      #   condition: service_healthy
   adminer:
     image: adminer
     restart: always
@@ -56,10 +54,10 @@ services:
       - ../images-upload-service/uploads:/app/uploads
     ports:
       - 18000:18000
-    # healthcheck:
-    #   test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
 volumes:
   postgres:
