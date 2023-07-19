@@ -10,11 +10,15 @@ import {
 import { City } from "../entities/city";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
+import { Point } from "geojson";
 
 @InputType()
 class CityType {
   @Field()
   name: string;
+
+  @Field(() => [Number])
+  coordinates: Point;
 }
 
 @InputType({ description: "update city data" })
@@ -35,6 +39,7 @@ export class CityResolver {
   async createCity(@Arg("data") data: CityType): Promise<City | ApolloError> {
     const newCity = new City();
     newCity.name = data.name;
+    newCity.coordinates = data.coordinates;
 
     try {
       const cityFromDB = await dataSource.manager.save(City, newCity);
@@ -49,12 +54,15 @@ export class CityResolver {
   async updateCity(
     @Arg("data") data: UpdatedCityType
   ): Promise<City | ApolloError> {
-    const { id, name } = data;
+    const { id, name, coordinates } = data;
     try {
       const cityToUpdate = await dataSource.manager.findOneByOrFail(City, {
         id,
       });
       name !== null && name !== undefined && (cityToUpdate.name = name);
+      coordinates !== null &&
+        coordinates !== undefined &&
+        (cityToUpdate.coordinates = coordinates);
 
       await dataSource.manager.save(City, cityToUpdate);
       return cityToUpdate;
