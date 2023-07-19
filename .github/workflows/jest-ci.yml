@@ -7,6 +7,7 @@ on:
     branches: ["main", "staging", "dev"]
 
 jobs:
+  # First workflow called "test-back" to launch test
   test-back:
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +16,7 @@ jobs:
       - name: Create env file
         run: |
           touch .env
-          echo "JWT_SECRET_KEY=rtvvHZtYzNRXfege" >> .env
+          echo "${{ secrets.JWT_SECRET_KEY }}" > .env
           echo "NODE_ENV=test" >> .env
       - name: Run tests
         run: docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner
@@ -26,13 +27,16 @@ jobs:
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+      # prepare buildx for docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      # login with Docker
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # build an push the newly created image
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -40,6 +44,8 @@ jobs:
           context: "{{defaultContext}}"
           file: ./Dockerfile
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_HUB_SERVER_IMAGE_NAME }}:latest
+
+  # Third workflow called "deploy-staging" to deploy on dev CI/CD
   deploy-staging:
     needs: test-back
     if: github.ref == 'refs/heads/staging'
