@@ -11,7 +11,6 @@ import { Comment } from "./comment";
 import { Favorite } from "./favorite";
 import { Role } from "./role";
 import { City } from "./city";
-import { Rate } from "./rate";
 
 @ObjectType()
 @Entity()
@@ -24,7 +23,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   username: string;
 
@@ -58,12 +57,6 @@ export class User {
     eager: true,
   })
   comments: Comment[];
-
-  @OneToMany(() => Rate, (rate) => rate.user, {
-    cascade: true,
-    eager: true,
-  })
-  rates: Rate[];
 
   @OneToMany(() => Favorite, (favorite) => favorite.user, {
     cascade: true,

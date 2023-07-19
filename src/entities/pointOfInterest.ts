@@ -98,3 +98,5 @@ export class PointOfInterest implements IPoi {
   @OneToMany(() => OpeningHours, (openingHours) => openingHours.pointOfInterest)
   openingHours: OpeningHours[];
 }
+
+
