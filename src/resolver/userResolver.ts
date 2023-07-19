@@ -139,7 +139,7 @@ export class UserResolver {
         where: { name: "free_user" },
       });
 
-      if (userRole == null) {
+      if (userRole === null) {
         throw new Error('Default role "free_user" not found in the database');
       }
 
@@ -378,19 +378,23 @@ export class UserResolver {
 
     if (cityName.length > 0 && newRoleName === "city_admin") {
       const cities = await Promise.all(
-        cityName.map(async (name:any) => 
-          await dataSource.manager.findOne(City, {
-            where: { name },
-          })
+        cityName.map(
+          async (name: any) =>
+            await dataSource.manager.findOne(City, {
+              where: { name },
+            })
         )
       );
-    
+
       if (cities.some((city) => city == null)) {
         throw new Error("One or more cities not found");
       }
-    
+
       user.cities = cities as City[]; // Cast is safe because we've filtered out null values
-    } else if (newRoleName === "city_admin" && (cityName === undefined || cityName.length === 0)) {
+    } else if (
+      newRoleName === "city_admin" &&
+      (cityName === undefined || cityName.length === 0)
+    ) {
       // if city_admin role but no cityName is provided, clear cities
       user.cities = [];
     } else if (newRoleName !== "city_admin") {

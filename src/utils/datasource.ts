@@ -33,6 +33,7 @@ const dataSource = new DataSource({
     OpeningHours,
     Role,
   ],
+  migrations: ["src/migrations/*.ts"],
 });
 
 export default dataSource;
