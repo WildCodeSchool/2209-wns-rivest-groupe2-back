@@ -17,7 +17,6 @@ export const getTokenForUser = async (
             firstname
             lastname
             profilePicture
-            type
             isVerified
           }
         }

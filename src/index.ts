@@ -23,11 +23,13 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
 
-  // initialisation BDD en DEV
-  console.log("🚀 ~ migration init DB is starting...");
-  const migration = new PopulateInitDb();
-  await migration.up(dataSource.createQueryRunner());
-  console.log("🚀 ~ migration init DB done ✅");
+  // initialisation BDD en DEV et PROD
+  if (process.env.NODE_ENV !== "test") {
+    console.log("🚀 ~ migration init DB is starting...");
+    const migration = new PopulateInitDb();
+    await migration.up(dataSource.createQueryRunner());
+    console.log("🚀 ~ migration init DB done ✅");
+  }
 
   const schema = await buildSchema({
     resolvers: [
@@ -40,7 +42,6 @@ const start = async (): Promise<void> => {
       RoleResolver,
     ],
     authChecker: ({ context }) => {
-      console.log("context", context);
       if (context.user.email === undefined) {
         return false;
       } else return true;

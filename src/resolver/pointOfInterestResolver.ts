@@ -11,7 +11,7 @@ import { OpeningHours } from "../entities/openingHours";
 export class PointOfInterestResolver {
   @Query(() => [PointOfInterest])
   async getAllPoi(): Promise<PointOfInterest[]> {
-    const allPoisInCity = await dataSource.manager.find(PointOfInterest, {
+    const allPois = await dataSource.manager.find(PointOfInterest, {
       relations: [
         "openingHours",
         "favorites",
@@ -21,7 +21,7 @@ export class PointOfInterestResolver {
         "city",
       ],
     });
-    const sortedPois = allPoisInCity.sort((a, b) => a.id - b.id);
+    const sortedPois = allPois.sort((a, b) => a.id - b.id);
     return sortedPois;
   }
 

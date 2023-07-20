@@ -2,16 +2,19 @@ import { IPoi } from "../../../../interfaces/testPoiInterface";
 import client from "../../getClient";
 import { CREATE_POI } from "../../graphql/mutations/poi/createPoi";
 
-export const generateTestPoi = async (userToken: string): Promise<IPoi> => {
+export const generateTestPoi = async (
+  userToken: string,
+  cityTestId: number
+): Promise<IPoi> => {
   const res = await client.mutate({
     mutation: CREATE_POI,
     variables: {
       data: {
         name: "test Poi 1",
         address: "1 rue du test",
-        postal: "01000",
+        postal: "75000",
         type: "restaurant",
-        coordinates: [35, 2],
+        coordinates: [45.75, 4.85],
         websiteURL: "http://test.com",
         description: "Je suis une description",
         openingHours: [
@@ -58,7 +61,10 @@ export const generateTestPoi = async (userToken: string): Promise<IPoi> => {
             hoursClose: [],
           },
         ],
-        city: "Paris",
+        city: {
+          id: cityTestId,
+          name: "Paris",
+        },
       },
     },
     fetchPolicy: "no-cache",

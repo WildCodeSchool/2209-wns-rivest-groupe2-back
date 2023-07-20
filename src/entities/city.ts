@@ -19,8 +19,9 @@ export class City {
   @Column("float", { array: true, nullable: true })
   coordinates: Point;
 
+  @Field(() => [PointOfInterest], { nullable: true })
   @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
-  public pointOfInterest: PointOfInterest[];
+  pointOfInterest: PointOfInterest[];
 
   @Field(() => [User], { nullable: true })
   @OneToMany(() => User, (user) => user.city)

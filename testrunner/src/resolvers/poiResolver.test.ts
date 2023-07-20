@@ -9,16 +9,20 @@ import { GET_ALL_POIS } from "./helpers/graphql/queries/poi/getAllPois";
 import { CREATE_POI } from "./helpers/graphql/mutations/poi/createPoi";
 import { UPDATE_POI } from "./helpers/graphql/mutations/poi/updatePoi";
 import { IPoi } from "../interfaces/testPoiInterface";
+import { generateTestCity } from "./helpers/generate/city/generateTestCity";
+import { ICityData } from "../interfaces/testCityInterface";
 
 describe("Point Of Interest resolver", () => {
   let user: ITestUser;
   let userToken: string;
+  let cityTest: ICityData;
   let poiTest: IPoi;
 
   beforeAll(async () => {
     user = await generateTestUser();
     userToken = await getTokenForUser(user.email, "testTest123!");
-    poiTest = await generateTestPoi(userToken);
+    cityTest = await generateTestCity(userToken);
+    poiTest = await generateTestPoi(userToken, cityTest.id);
   });
 
   afterAll(async () => {
@@ -89,7 +93,10 @@ describe("Point Of Interest resolver", () => {
               hoursClose: [],
             },
           ],
-          city: "Paris",
+          city: {
+            id: cityTest.id,
+            name: "Paris",
+          },
         },
       },
       fetchPolicy: "no-cache",
@@ -106,7 +113,7 @@ describe("Point Of Interest resolver", () => {
     expect(res.data.createPoi.coordinates).toEqual([35, 2]);
     expect(res.data.createPoi.websiteURL).toEqual("http://test.com");
     expect(res.data.createPoi.description).toEqual("Je suis une description");
-    expect(res.data.createPoi.city).toEqual("Paris");
+    expect(res.data.createPoi.city.name).toEqual("Paris");
   });
 
   it("disallow creation of a new point of interest if no user is connected", async () => {
@@ -167,7 +174,10 @@ describe("Point Of Interest resolver", () => {
                 hoursClose: [],
               },
             ],
-            city: "Paris",
+            city: {
+              id: cityTest.id,
+              name: "Paris",
+            },
           },
         },
         fetchPolicy: "no-cache",

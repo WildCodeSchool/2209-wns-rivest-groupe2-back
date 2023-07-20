@@ -414,6 +414,13 @@ export class UserResolver {
       newUser.hashedPassword = await argon2.hash(password);
       newUser.isVerified = true;
       newUser.uuid = `${Math.floor(Math.random() * 1000000)}`;
+      newUser.role = {
+        id: 1,
+        name: "free_user",
+        description:
+          "Connecté en free_user ! vous pouvez accéder au détail des POI, ajouter un commentaire et ajouter un commentaire ",
+        users: [],
+      };
 
       const userFromDB = await dataSource.manager.save(User, newUser);
 

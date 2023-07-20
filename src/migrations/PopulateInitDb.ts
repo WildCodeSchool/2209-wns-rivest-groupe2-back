@@ -34,20 +34,21 @@ export class PopulateInitDb implements MigrationInterface {
       await userRepository.save(sampleUserObject);
     }
 
-    // always at least 2 cities
+    // always at least 6 cities
     const cityRepository = dataSource.getRepository(City);
     const cities = await cityRepository.find();
 
-    if (cities.length < 1) {
+    if (cities.length < 6) {
       const allCities = getCities();
       const cityObjects = allCities.map((city) => cityRepository.create(city));
       await cityRepository.save(cityObjects);
     }
-    // always some pois
+    // always 10 pois per city
     const poiRepository = dataSource.getRepository(PointOfInterest);
     const pois = await poiRepository.find();
 
-    if (pois.length < 1) {
+    if (pois.length < 60) {
+      await poiRepository.delete({});
       const allPois = await getPois();
       const poiObjects = allPois.map((poi) => poiRepository.create(poi));
       await poiRepository.save(poiObjects);
