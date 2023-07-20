@@ -6,6 +6,7 @@ import { User } from "../entities/user";
 import * as dotenv from "dotenv";
 import { Favorite } from "../entities/favorite";
 import { Role } from "../entities/role";
+import * as path from "path";
 import { OpeningHours } from "../entities/openingHours";
 
 dotenv.config();
@@ -33,7 +34,7 @@ const dataSource = new DataSource({
     OpeningHours,
     Role,
   ],
-  migrations: ["src/migrations/*.ts"],
+  migrations: [path.join(__dirname, "/migrations/*.*")],
 });
 
 export default dataSource;

@@ -44,7 +44,10 @@ const start = async (): Promise<void> => {
     authChecker: ({ context }, roles) => {
       if (context?.user?.email === undefined) {
         return false;
-      } else if (roles?.length === 0 || roles.includes(context?.user?.role?.name)) {
+      } else if (
+        roles?.length === 0 ||
+        roles.includes(context?.user?.role?.name)
+      ) {
         return true;
       } else {
         return false;
