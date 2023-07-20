@@ -25,6 +25,19 @@ export class PointOfInterestResolver {
     return sortedPois;
   }
 
+  @Query(() => PointOfInterest)
+  async getPOIbyId(
+    @Arg("id") id: number,
+  ): Promise<PointOfInterest> {
+    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["comments", "comments.user"] });
+
+    if (poi == null) {
+      throw new Error("POI not found");
+    }
+
+    return poi;
+  }
+
   @Query(() => [PointOfInterest])
   async getAllPoiInCity(
     @Arg("cityId") cityId: number
