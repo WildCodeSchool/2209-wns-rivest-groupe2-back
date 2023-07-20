@@ -9,7 +9,7 @@ import { City } from "../entities/city";
 import getCities from "../init_db/cities/getCities";
 import getPois from "../init_db/pois/getPois";
 
-export class populateInitDb implements MigrationInterface {
+export class PopulateInitDb implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const roleRepository = dataSource.getRepository(Role);
     const roles = await roleRepository.find();

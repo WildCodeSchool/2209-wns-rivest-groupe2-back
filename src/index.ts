@@ -14,6 +14,7 @@ import { User } from "./entities/user";
 import { UserContext } from "./interfaces/UserContext";
 import { FavoriteResolver } from "./resolver/favoriteResolver";
 import { RoleResolver } from "./resolver/roleResolver";
+import { PopulateInitDb } from "./migrations/PopulateInitDb";
 
 dotenv.config();
 
@@ -25,7 +26,8 @@ const start = async (): Promise<void> => {
   // initialisation BDD en DEV et PROD
   if (process.env.NODE_ENV !== "test") {
     console.log("🚀 ~ migration init DB is starting...");
-    await dataSource.runMigrations();
+    const migration = new PopulateInitDb();
+    await migration.up(dataSource.createQueryRunner());
     console.log("🚀 ~ migration init DB done ✅");
   }
 
