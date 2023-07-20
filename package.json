@@ -11,7 +11,6 @@
     "build": "NODE_ENV=production tsc --target ES5 --experimentalDecorators --emitDecoratorMetadata",
     "prod": "NODE_ENV=production node dist/index.js",
     "typeorm": "typeorm-ts-node-commonjs -d src/utils/datasource.ts",
-    "db:migration:generate": "npm run typeorm migration:generate -n FirstMigration",
     "db:migration:run": "npm run typeorm migration:run"
   },
   "author": "",

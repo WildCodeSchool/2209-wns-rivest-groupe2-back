@@ -14,10 +14,9 @@ const getUserInfos = async (): Promise<DeepPartial<User>> => {
     isVerified: true,
     uuid: "nbkjbkbkndnk151412253",
     role: {
-      id: 1,
-      name: "free_user",
-      description:
-        "Connecté en free_user ! vous pouvez accéder au détail des POI, ajouter un commentaire et ajouter un commentaire ",
+      id: 4,
+      name: "admin",
+      description: "Connecté en admin ! You can safely drop the database ;)",
     },
   };
 };
