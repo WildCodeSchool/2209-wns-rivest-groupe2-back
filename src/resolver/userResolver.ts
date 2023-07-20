@@ -271,7 +271,7 @@ export class UserResolver {
     }
   }
 
-  @Authorized(["admin", "city_admin"])
+  @Authorized("admin", "city_admin")
   @Mutation(() => User)
   async updateUserRole(
     @Arg("userId") userId: string,
