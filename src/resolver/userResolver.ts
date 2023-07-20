@@ -147,8 +147,11 @@ export class UserResolver {
       newUser.email = email;
       newUser.username = username;
       newUser.hashedPassword = await argon2.hash(password);
-      // Attribuez le rôle "free_user" au nouvel utilisateur
-      newUser.role = userRole;
+
+      if (newUser.email !== "sample.user@develop.com") {
+        // Attribuez le rôle "free_user" au nouvel utilisateur
+        newUser.role = userRole;
+      }
 
       // uuid (email confirmation logic)
       const uuid = uuidv4();
