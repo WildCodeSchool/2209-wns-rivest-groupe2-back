@@ -77,7 +77,7 @@ class UpdateUserInput {
 export class UserResolver {
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User, { relations: ["cities"] });
+    return await dataSource.manager.find(User, { relations: ["city"] });
   }
 
   @Query(() => User)
@@ -190,6 +190,7 @@ export class UserResolver {
     return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async updateUser(
     @Arg("data") data: UpdateUserInput
@@ -228,6 +229,7 @@ export class UserResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => String)
   async deleteUser(@Arg("id") id: number): Promise<String | ApolloError> {
     try {
@@ -269,8 +271,8 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => User)
   @Authorized(["admin", "city_admin"])
+  @Mutation(() => User)
   async updateUserRole(
     @Arg("userId") userId: string,
     @Arg("role") newRoleName: string,
@@ -323,12 +325,12 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => User)
   @Authorized(["admin", "city_admin"])
+  @Mutation(() => User)
   async updateUserRoleAndCity(
     @Arg("userId") userId: string,
     @Arg("role") newRoleName: string,
-    @Arg("cityName", () => [String], { nullable: true }) cityName: string[],
+    @Arg("cityName", { nullable: true }) cityName: string,
     @Ctx() context: UserContext
   ): Promise<User | null> {
     const id = Number(userId);
@@ -338,16 +340,16 @@ export class UserResolver {
 
     const user = await dataSource.manager.findOne(User, {
       where: { id },
-      relations: ["cities"],
+      relations: ["city"],
     });
-    if (user == null) {
+    if (user === null) {
       throw new Error("User not found");
     }
 
     const newRole = await dataSource.manager.findOne(Role, {
       where: { name: newRoleName },
     });
-    if (newRole == null) {
+    if (newRole === null) {
       throw new Error("Role not found");
     }
 
@@ -376,30 +378,15 @@ export class UserResolver {
       }
     }
 
-    if (cityName.length > 0 && newRoleName === "city_admin") {
-      const cities = await Promise.all(
-        cityName.map(
-          async (name: any) =>
-            await dataSource.manager.findOne(City, {
-              where: { name },
-            })
-        )
-      );
-
-      if (cities.some((city) => city == null)) {
-        throw new Error("One or more cities not found");
-      }
-
-      user.cities = cities as City[]; // Cast is safe because we've filtered out null values
-    } else if (
-      newRoleName === "city_admin" &&
-      (cityName === undefined || cityName.length === 0)
+    if (
+      cityName?.length > 0 &&
+      (newRoleName === "city_admin" || newRoleName === "super_user")
     ) {
-      // if city_admin role but no cityName is provided, clear cities
-      user.cities = [];
-    } else if (newRoleName !== "city_admin") {
-      // if the role is not city_admin, clear cities
-      user.cities = [];
+      const city = await dataSource.manager.findOne(City, {
+        where: { name: cityName },
+      });
+
+      user.city = city as City;
     }
 
     await dataSource.manager.save(user);

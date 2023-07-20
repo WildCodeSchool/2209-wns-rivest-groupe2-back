@@ -35,8 +35,7 @@ export class CityResolver {
   @Query(() => [City])
   async getAllCities(): Promise<City[]> {
     return await dataSource.manager.find(City, {
-      // relations: { country: true },
-      relations: ["user"],
+      relations: ["users"],
     });
   }
 
