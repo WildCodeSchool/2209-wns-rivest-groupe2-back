@@ -41,10 +41,14 @@ const start = async (): Promise<void> => {
       DeleteAllEntitiesResolver,
       RoleResolver,
     ],
-    authChecker: ({ context }) => {
-      if (context.user.email === undefined) {
+    authChecker: ({ context }, roles) => {
+      if (context?.user?.email === undefined) {
         return false;
-      } else return true;
+      } else if (roles?.length === 0 || roles.includes(context?.user?.role?.name)) {
+        return true;
+      } else {
+        return false;
+      }
     },
   });
   const server = new ApolloServer({
