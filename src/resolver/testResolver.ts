@@ -1,7 +1,6 @@
 import { Resolver, Mutation } from "type-graphql";
 import { City } from "../entities/city";
 import { Comment } from "../entities/comment";
-import { Country } from "../entities/country";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
@@ -19,7 +18,6 @@ export class DeleteAllEntitiesResolver {
     // Delete all entities in the database
     await dataSource.manager.delete(City, {});
     await dataSource.manager.delete(Comment, {});
-    await dataSource.manager.delete(Country, {});
     await dataSource.manager.delete(Favorite, {});
     await dataSource.manager.delete(PointOfInterest, {});
     await dataSource.manager.delete(User, {});

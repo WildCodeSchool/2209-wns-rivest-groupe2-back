@@ -6,7 +6,6 @@ export const UPDATE_USER = gql`
       id
       email
       username
-      type
       firstname
       lastname
     }

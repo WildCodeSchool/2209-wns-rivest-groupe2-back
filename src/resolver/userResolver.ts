@@ -9,6 +9,8 @@ import {
   Query,
   Resolver,
   ObjectType,
+  Authorized,
+  Ctx,
 } from "type-graphql";
 import { User } from "../entities/user";
 import dataSource from "../utils/datasource";
@@ -16,6 +18,9 @@ import { ApolloError } from "apollo-server";
 import { Regex } from "../utils/userRegex";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { Favorite } from "../entities/favorite";
+import { Role } from "../entities/role";
+import { UserContext } from "../interfaces/UserContext";
+import { City } from "../entities/city";
 import { Email, sendMail } from "../nodemailer/transporter";
 import { v4 as uuidv4 } from "uuid";
 
@@ -72,7 +77,7 @@ class UpdateUserInput {
 export class UserResolver {
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await dataSource.manager.find(User);
+    return await dataSource.manager.find(User, { relations: ["city"] });
   }
 
   @Query(() => User)
@@ -100,7 +105,10 @@ export class UserResolver {
 
       if (await argon2.verify(userFromDB.hashedPassword, password)) {
         const token = jwt.sign(
-          { email: userFromDB.email },
+          {
+            email: userFromDB.email,
+            role: userFromDB.role.name,
+          },
           process.env.JWT_SECRET_KEY
         );
         return { token, userFromDB };
@@ -126,10 +134,21 @@ export class UserResolver {
         throw new Error();
       }
 
+      // Recherchez le rôle "free_user" dans la base de données
+      const userRole = await dataSource.manager.findOne(Role, {
+        where: { name: "free_user" },
+      });
+
+      if (userRole === null) {
+        throw new Error('Default role "free_user" not found in the database');
+      }
+
       const newUser = new User();
       newUser.email = email;
       newUser.username = username;
       newUser.hashedPassword = await argon2.hash(password);
+      // Attribuez le rôle "free_user" au nouvel utilisateur
+      newUser.role = userRole;
 
       // uuid (email confirmation logic)
       const uuid = uuidv4();
@@ -147,7 +166,10 @@ export class UserResolver {
       const userFromDB = await dataSource.manager.save(User, newUser);
 
       const token = jwt.sign(
-        { email: userFromDB.email },
+        {
+          email: userFromDB.email,
+          role: userFromDB.role.name,
+        },
         process.env.JWT_SECRET_KEY
       );
       return { token, userFromDB };
@@ -168,6 +190,7 @@ export class UserResolver {
     return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async updateUser(
     @Arg("data") data: UpdateUserInput
@@ -206,6 +229,7 @@ export class UserResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => String)
   async deleteUser(@Arg("id") id: number): Promise<String | ApolloError> {
     try {
@@ -247,6 +271,129 @@ export class UserResolver {
     }
   }
 
+  @Authorized("admin", "city_admin")
+  @Mutation(() => User)
+  async updateUserRole(
+    @Arg("userId") userId: string,
+    @Arg("role") newRoleName: string,
+    @Ctx() context: UserContext
+  ): Promise<User | null> {
+    const id = Number(userId);
+    if (isNaN(id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const user = await dataSource.manager.findOne(User, { where: { id } });
+    if (user == null) {
+      throw new Error("User not found");
+    }
+
+    const newRole = await dataSource.manager.findOne(Role, {
+      where: { name: newRoleName },
+    });
+    if (newRole == null) {
+      throw new Error("Role not found");
+    }
+
+    if (
+      context?.user?.role?.name === "admin" &&
+      ["admin", "city_admin", "super_user", "free_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else if (
+      context?.user?.role?.name === "city_admin" &&
+      ["super_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else {
+      if (
+        context?.user?.role?.name !== "admin" &&
+        context?.user?.role?.name !== "city_admin"
+      ) {
+        throw new Error(
+          "Unauthorized: User does not have sufficient permissions to perform this action."
+        );
+      } else {
+        throw new Error(
+          `Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`
+        );
+      }
+    }
+
+    await dataSource.manager.save(user);
+
+    return user;
+  }
+
+  @Authorized("admin", "city_admin")
+  @Mutation(() => User)
+  async updateUserRoleAndCity(
+    @Arg("userId") userId: string,
+    @Arg("role") newRoleName: string,
+    @Arg("cityName", { nullable: true }) cityName: string,
+    @Ctx() context: UserContext
+  ): Promise<User | null> {
+    const id = Number(userId);
+    if (isNaN(id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const user = await dataSource.manager.findOne(User, {
+      where: { id },
+      relations: ["city"],
+    });
+    if (user === null) {
+      throw new Error("User not found");
+    }
+
+    const newRole = await dataSource.manager.findOne(Role, {
+      where: { name: newRoleName },
+    });
+    if (newRole === null) {
+      throw new Error("Role not found");
+    }
+
+    if (
+      context?.user?.role?.name === "admin" &&
+      ["admin", "city_admin", "super_user", "free_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else if (
+      context?.user?.role?.name === "city_admin" &&
+      ["super_user"].includes(newRoleName)
+    ) {
+      user.role = newRole;
+    } else {
+      if (
+        context?.user?.role?.name !== "admin" &&
+        context?.user?.role?.name !== "city_admin"
+      ) {
+        throw new Error(
+          "Unauthorized: User does not have sufficient permissions to perform this action."
+        );
+      } else {
+        throw new Error(
+          `Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`
+        );
+      }
+    }
+
+    if (
+      cityName?.length > 0 &&
+      (newRoleName === "city_admin" || newRoleName === "super_user")
+    ) {
+      const city = await dataSource.manager.findOne(City, {
+        where: { name: cityName },
+      });
+
+      user.city = city as City;
+    }
+
+    await dataSource.manager.save(user);
+
+    return user;
+  }
+
   @Mutation(() => RegisterResponse)
   async createUserTestRunner(
     @Arg("email") email: string,
@@ -267,6 +414,13 @@ export class UserResolver {
       newUser.hashedPassword = await argon2.hash(password);
       newUser.isVerified = true;
       newUser.uuid = `${Math.floor(Math.random() * 1000000)}`;
+      newUser.role = {
+        id: 1,
+        name: "free_user",
+        description:
+          "Connecté en free_user ! vous pouvez accéder au détail des POI, ajouter un commentaire et ajouter un commentaire ",
+        users: [],
+      };
 
       const userFromDB = await dataSource.manager.save(User, newUser);
 

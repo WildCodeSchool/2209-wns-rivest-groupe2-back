@@ -18,6 +18,7 @@ export class PointOfInterestResolver {
         "comments",
         "comments.user",
         "favorites.user",
+        "city",
       ],
     });
     const sortedPois = allPois.sort((a, b) => a.id - b.id);
@@ -35,6 +36,27 @@ export class PointOfInterestResolver {
     }
 
     return poi;
+  }
+
+  @Query(() => [PointOfInterest])
+  async getAllPoiInCity(
+    @Arg("cityId") cityId: number
+  ): Promise<PointOfInterest[]> {
+    const allPoisInCity = await dataSource.manager.find(PointOfInterest, {
+      relations: [
+        "openingHours",
+        "favorites",
+        "comments",
+        "comments.user",
+        "favorites.user",
+        "city",
+      ],
+      where: {
+        city: { id: cityId },
+      },
+    });
+    const sortedPois = allPoisInCity.sort((a, b) => a.id - b.id);
+    return sortedPois;
   }
 
   @Authorized()
@@ -153,6 +175,7 @@ export class PointOfInterestResolver {
           },
           relations: {
             openingHours: true,
+            city: true,
           },
         }
       );
@@ -173,6 +196,7 @@ export class PointOfInterestResolver {
         relations: {
           comments: true,
           favorites: true,
+          city: true,
         },
       });
 
