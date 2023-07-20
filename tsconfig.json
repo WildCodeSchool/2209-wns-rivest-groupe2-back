@@ -6,13 +6,13 @@
     "emitDecoratorMetadata": true,
     "module": "CommonJS",
     "moduleResolution": "node",
-    "outDir": "build",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["./out.d.ts"]
+  "include": ["src/**/*"]
 }

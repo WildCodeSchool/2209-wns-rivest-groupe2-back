@@ -9,7 +9,7 @@
     "docker": "docker compose -f docker-compose.dev.yml up --build",
     "integration-test": "docker compose -f docker-compose.back.integration.test.yml up --build --exit-code-from testrunner",
     "build": "NODE_ENV=production tsc --target ES5 --experimentalDecorators --emitDecoratorMetadata",
-    "prod": "NODE_ENV=production node dist/index.js"
+    "prod": "node dist/index.js"
   },
   "author": "",
   "license": "ISC",
