@@ -138,9 +138,16 @@ export class UserResolver {
       const userRole = await dataSource.manager.findOne(Role, {
         where: { name: "free_user" },
       });
+      const userRoleAdmin = await dataSource.manager.findOne(Role, {
+        where: { name: "admin" },
+      });
 
       if (userRole === null) {
         throw new Error('Default role "free_user" not found in the database');
+      }
+
+      if (userRoleAdmin === null) {
+        throw new Error('Default role "admin" not found in the database');
       }
 
       const newUser = new User();
@@ -151,6 +158,8 @@ export class UserResolver {
       if (newUser.email !== "sample.user@develop.com") {
         // Attribuez le rôle "free_user" au nouvel utilisateur
         newUser.role = userRole;
+      } else {
+        newUser.role = userRoleAdmin;
       }
 
       // uuid (email confirmation logic)
