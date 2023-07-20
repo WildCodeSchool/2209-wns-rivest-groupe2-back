@@ -155,7 +155,7 @@ export class UserResolver {
       newUser.username = username;
       newUser.hashedPassword = await argon2.hash(password);
 
-      if (newUser.email === "sample.user@develop.com") {
+      if (email === "sample.user@develop.com") {
         newUser.role = userRoleAdmin;
       } else {
         // Attribuez le rôle "free_user" au nouvel utilisateur
