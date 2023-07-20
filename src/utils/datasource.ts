@@ -1,7 +1,6 @@
 import { DataSource } from "typeorm";
 import { City } from "../entities/city";
 import { Comment } from "../entities/comment";
-import { Country } from "../entities/country";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { User } from "../entities/user";
 import * as dotenv from "dotenv";
@@ -28,13 +27,13 @@ const dataSource = new DataSource({
   entities: [
     City,
     Comment,
-    Country,
     PointOfInterest,
     User,
     Favorite,
     OpeningHours,
     Role,
   ],
+  migrations: ["src/migrations/*.ts"],
 });
 
 export default dataSource;

@@ -72,7 +72,11 @@ export class User {
   @JoinColumn({ name: "role_id" })
   role: Role;
 
-  @Field(() => [City])
-  @OneToMany(() => City, (city) => city.user)
-  cities: City[];
+  @Field(() => City, { nullable: true })
+  @ManyToOne(() => City, (city) => city.users, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  @JoinColumn({ name: "city_id" })
+  city: City;
 }

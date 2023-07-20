@@ -11,7 +11,6 @@ export const GET_TOKEN = gql`
         firstname
         lastname
         profilePicture
-        type
         isVerified
       }
     }

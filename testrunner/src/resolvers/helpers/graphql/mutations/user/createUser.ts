@@ -15,7 +15,10 @@ export const CREATE_USER = gql`
         firstname
         lastname
         profilePicture
-        type
+        role {
+          id
+          name
+        }
       }
     }
   }

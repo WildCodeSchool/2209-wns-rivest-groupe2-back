@@ -26,13 +26,16 @@ describe("User resolver", () => {
     );
     expect(res.data?.createUserTestRunner.userFromDB.firstname).toEqual(null);
     expect(res.data?.createUserTestRunner.userFromDB.lastname).toEqual(null);
-    expect(res.data?.createUserTestRunner.userFromDB.type).toEqual("freeUser");
+    expect(res.data?.createUserTestRunner.userFromDB.role.name).toEqual(
+      "free_user"
+    );
     expect(res.data?.createUserTestRunner.userFromDB.username).toEqual(
       "test123"
     );
   });
 
   let userId: number;
+  let token: string;
 
   it("get token if the user is valid", async () => {
     const res = await client.query({
@@ -42,6 +45,7 @@ describe("User resolver", () => {
     });
     expect(res.data?.getToken.token).toMatch(/^[\w-]*\.[\w-]*\.[\w-]*$/);
     userId = res.data.getToken.userFromDB.id;
+    token = res.data.getToken.token;
   });
 
   it("update the user informations", async () => {
@@ -53,9 +57,15 @@ describe("User resolver", () => {
           id: userId,
           lastname: "tata",
           username: "supertoto",
+          email: "test123@test.com",
         },
       },
       fetchPolicy: "no-cache",
+      context: {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      },
     });
     expect(res.data?.updateUser).toEqual({
       __typename: "User",
@@ -63,7 +73,6 @@ describe("User resolver", () => {
       firstname: "toto",
       id: userId,
       lastname: "tata",
-      type: "freeUser",
       username: "supertoto",
     });
   });
@@ -80,7 +89,6 @@ describe("User resolver", () => {
       firstname: "toto",
       id: userId,
       lastname: "tata",
-      type: "freeUser",
       username: "supertoto",
     });
   });

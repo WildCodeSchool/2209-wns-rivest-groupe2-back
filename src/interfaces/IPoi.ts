@@ -12,5 +12,4 @@ export interface IPoi {
   pictureUrl: string;
   websiteURL: string;
   description: string;
-  city: string;
 }
