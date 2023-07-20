@@ -40,8 +40,6 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      images:
-        condition: service_healthy
   adminer:
     image: adminer
     restart: always
@@ -57,7 +55,7 @@ services:
     ports:
       - 18000:18000
     healthcheck:
-      test: "curl --fail --request GET --url 'http://localhost:8000' || exit 1"
+      test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
       interval: 5s
       timeout: 5s
       retries: 10

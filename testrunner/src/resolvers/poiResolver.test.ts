@@ -9,16 +9,20 @@ import { GET_ALL_POIS } from "./helpers/graphql/queries/poi/getAllPois";
 import { CREATE_POI } from "./helpers/graphql/mutations/poi/createPoi";
 import { UPDATE_POI } from "./helpers/graphql/mutations/poi/updatePoi";
 import { IPoi } from "../interfaces/testPoiInterface";
+import { generateTestCity } from "./helpers/generate/city/generateTestCity";
+import { ICityData } from "../interfaces/testCityInterface";
 
 describe("Point Of Interest resolver", () => {
   let user: ITestUser;
   let userToken: string;
+  let cityTest: ICityData;
   let poiTest: IPoi;
 
   beforeAll(async () => {
     user = await generateTestUser();
     userToken = await getTokenForUser(user.email, "testTest123!");
-    poiTest = await generateTestPoi(userToken);
+    cityTest = await generateTestCity(userToken);
+    poiTest = await generateTestPoi(userToken, cityTest.id);
   });
 
   afterAll(async () => {
@@ -45,11 +49,54 @@ describe("Point Of Interest resolver", () => {
           coordinates: [35, 2],
           websiteURL: "http://test.com",
           description: "Je suis une description",
-          priceRange: "$",
-          daysOpen: ["tuesday", "wednesday", "thursday", "friday", "saturday"],
-          hoursOpen: ["11:30"],
-          hoursClose: ["14:00"],
-          city: "Paris",
+          openingHours: [
+            {
+              value: "monday",
+              name: "Lundi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "tuesday",
+              name: "Mardi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "wednesday",
+              name: "Mercredi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "thursday",
+              name: "Jeudi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "friday",
+              name: "Vendredi",
+              hoursOpen: ["11:30"],
+              hoursClose: ["14:00"],
+            },
+            {
+              value: "saturday",
+              name: "Samedi",
+              hoursOpen: ["Fermé"],
+              hoursClose: [],
+            },
+            {
+              value: "sunday",
+              name: "Dimanche",
+              hoursOpen: ["Fermé"],
+              hoursClose: [],
+            },
+          ],
+          city: {
+            id: cityTest.id,
+            name: "Paris",
+          },
         },
       },
       fetchPolicy: "no-cache",
@@ -66,17 +113,7 @@ describe("Point Of Interest resolver", () => {
     expect(res.data.createPoi.coordinates).toEqual([35, 2]);
     expect(res.data.createPoi.websiteURL).toEqual("http://test.com");
     expect(res.data.createPoi.description).toEqual("Je suis une description");
-    expect(res.data.createPoi.priceRange).toEqual("$");
-    expect(res.data.createPoi.daysOpen).toEqual([
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ]);
-    expect(res.data.createPoi.hoursOpen).toEqual(["11:30"]);
-    expect(res.data.createPoi.hoursClose).toEqual(["14:00"]);
-    expect(res.data.createPoi.city).toEqual("Paris");
+    expect(res.data.createPoi.city.name).toEqual("Paris");
   });
 
   it("disallow creation of a new point of interest if no user is connected", async () => {
@@ -93,17 +130,54 @@ describe("Point Of Interest resolver", () => {
             coordinates: [35, 2],
             websiteURL: "http://test.com",
             description: "Je suis une description",
-            priceRange: "$",
-            daysOpen: [
-              "tuesday",
-              "wednesday",
-              "thursday",
-              "friday",
-              "saturday",
+            openingHours: [
+              {
+                value: "monday",
+                name: "Lundi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "tuesday",
+                name: "Mardi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "wednesday",
+                name: "Mercredi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "thursday",
+                name: "Jeudi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "friday",
+                name: "Vendredi",
+                hoursOpen: ["11:30"],
+                hoursClose: ["14:00"],
+              },
+              {
+                value: "saturday",
+                name: "Samedi",
+                hoursOpen: ["Fermé"],
+                hoursClose: [],
+              },
+              {
+                value: "sunday",
+                name: "Dimanche",
+                hoursOpen: ["Fermé"],
+                hoursClose: [],
+              },
             ],
-            hoursOpen: ["11:30"],
-            hoursClose: ["14:00"],
-            city: "Paris",
+            city: {
+              id: cityTest.id,
+              name: "Paris",
+            },
           },
         },
         fetchPolicy: "no-cache",
