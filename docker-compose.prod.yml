@@ -2,6 +2,7 @@ services:
   db:
     container_name: db-prod
     image: postgis/postgis
+    pull_policy: always
     restart: always
     user: postgres
     environment:
@@ -26,7 +27,7 @@ services:
       - ./.env
     volumes:
       - ./src:/app/src
-    command: sh -c "npm run build && npm run prod"
+    command: [sh, -cx, "npm run db:migration:run && npm run build && npm run prod"]
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
       interval: 5s
@@ -35,27 +36,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  images:
-    container_name: images-service-prod
-    env_file:
-      - ./.env
-    image: cityguidewild/cityguidewild-images-service
-    volumes:
-      - ./images-service/uploads:/app/uploads
-    command: [sh, -cx, "npm run build && npm run start-prod"]
-    ports:
-      - 18000:18000
-    healthcheck:
-      test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
-      interval: 5s
-      timeout: 5s
-      retries: 10
   frontend:
     container_name: frontend-prod
     image: cityguidewild/cityguidewild_client
+    pull_policy: always
     command: sh -c "npm run build"
     env_file:
-      - ../front/.env
+      - ./.env
     environment:
       - NODE_ENV=production
     volumes:
@@ -72,6 +59,8 @@ services:
     depends_on:
       - frontend
       - backend
+      - db
+      - adminer
     restart: always
     ports:
       - ${GATEWAY_PORT:-8000}:80
@@ -84,6 +73,22 @@ services:
     restart: always
     ports:
       - 8080:8080
+  images:
+    container_name: images-service-prod
+    env_file:
+      - ./.env
+    image: cityguidewild/cityguidewild-images-service
+    pull_policy: always
+    volumes:
+      - ./images-service/uploads:/app/uploads
+    command: [sh, -cx, "npm run build && npm run start-prod"]
+    ports:
+      - 18000:18000
+    healthcheck:
+      test: "curl --fail --request GET --url 'http://localhost:18000/images' || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 10
 volumes:
   postgres:
   web-client-build:
