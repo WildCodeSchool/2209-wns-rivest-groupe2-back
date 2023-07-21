@@ -10,14 +10,21 @@ export const GET_ALL_POIS = gql`
       type
       coordinates
       creationDate
+      averageRate
       pictureUrl
       websiteURL
       description
-      priceRange
-      city
-      daysOpen
-      hoursOpen
-      hoursClose
+      city {
+        id
+        name
+      }
+      openingHours {
+        id
+        value
+        name
+        hoursOpen
+        hoursClose
+      }
     }
   }
 `;

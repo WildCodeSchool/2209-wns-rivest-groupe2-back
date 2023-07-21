@@ -24,6 +24,8 @@ services:
       - SERVER_PORT=5000
     env_file:
       - ./.env
+    volumes:
+      - ./src:/app/src
     command: sh -c "npm run build && npm run prod"
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
@@ -40,7 +42,7 @@ services:
     image: cityguidewild/cityguidewild-images-service
     volumes:
       - ./images-service/uploads:/app/uploads
-    command: [sh, -cx, "npm run build && npm run prod"]
+    command: [sh, -cx, "npm run build && npm run start-prod"]
     ports:
       - 18000:18000
     healthcheck:
@@ -51,10 +53,9 @@ services:
   frontend:
     container_name: frontend-prod
     image: cityguidewild/cityguidewild_client
-    pull_policy: always
     command: sh -c "npm run build"
     env_file:
-      - ./.env
+      - ../front/.env
     environment:
       - NODE_ENV=production
     volumes:
@@ -71,8 +72,6 @@ services:
     depends_on:
       - frontend
       - backend
-      - db
-      - adminer
     restart: always
     ports:
       - ${GATEWAY_PORT:-8000}:80
@@ -85,7 +84,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-
 volumes:
   postgres:
   web-client-build:

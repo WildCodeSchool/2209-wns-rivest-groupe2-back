@@ -16,17 +16,26 @@ describe("User resolver", () => {
       variables: {
         email: "test123@test.com",
         password: "testTest123!",
+        username: "test123",
       },
       fetchPolicy: "no-cache",
     });
 
-    expect(res.data?.createUser.userFromDB).toEqual({
-      __typename: "User",
-      email: "test123@test.com",
-    });
+    expect(res.data?.createUserTestRunner.userFromDB.email).toEqual(
+      "test123@test.com"
+    );
+    expect(res.data?.createUserTestRunner.userFromDB.firstname).toEqual(null);
+    expect(res.data?.createUserTestRunner.userFromDB.lastname).toEqual(null);
+    expect(res.data?.createUserTestRunner.userFromDB.role.name).toEqual(
+      "free_user"
+    );
+    expect(res.data?.createUserTestRunner.userFromDB.username).toEqual(
+      "test123"
+    );
   });
 
   let userId: number;
+  let token: string;
 
   it("get token if the user is valid", async () => {
     const res = await client.query({
@@ -36,6 +45,7 @@ describe("User resolver", () => {
     });
     expect(res.data?.getToken.token).toMatch(/^[\w-]*\.[\w-]*\.[\w-]*$/);
     userId = res.data.getToken.userFromDB.id;
+    token = res.data.getToken.token;
   });
 
   it("update the user informations", async () => {
@@ -47,18 +57,23 @@ describe("User resolver", () => {
           id: userId,
           lastname: "tata",
           username: "supertoto",
+          email: "test123@test.com",
         },
       },
       fetchPolicy: "no-cache",
+      context: {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      },
     });
     expect(res.data?.updateUser).toEqual({
       __typename: "User",
       email: "test123@test.com",
-      id: userId,
-      username: "supertoto",
-      type: "freeUser",
       firstname: "toto",
+      id: userId,
       lastname: "tata",
+      username: "supertoto",
     });
   });
 
@@ -71,11 +86,10 @@ describe("User resolver", () => {
     expect(res.data?.getUserById).toEqual({
       __typename: "User",
       email: "test123@test.com",
-      id: userId,
-      username: "supertoto",
-      type: "freeUser",
       firstname: "toto",
+      id: userId,
       lastname: "tata",
+      username: "supertoto",
     });
   });
 });
