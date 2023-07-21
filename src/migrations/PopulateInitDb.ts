@@ -19,6 +19,7 @@ export class PopulateInitDb implements MigrationInterface {
       await roleRepository.delete({});
       const allRoles = getRoles();
       const roleObjects = allRoles.map((role) => roleRepository.create(role));
+      await queryRunner.query(`ALTER SEQUENCE role_id_seq RESTART WITH 1`);
       await roleRepository.save(roleObjects);
     }
 
@@ -38,11 +39,15 @@ export class PopulateInitDb implements MigrationInterface {
     const cityRepository = dataSource.getRepository(City);
     const cities = await cityRepository.find();
 
+
     if (cities.length < 6) {
+      await cityRepository.delete({});
       const allCities = getCities();
       const cityObjects = allCities.map((city) => cityRepository.create(city));
+      await queryRunner.query(`ALTER SEQUENCE city_id_seq RESTART WITH 1`);
       await cityRepository.save(cityObjects);
     }
+
     // always 10 pois per city
     const poiRepository = dataSource.getRepository(PointOfInterest);
     const pois = await poiRepository.find();
