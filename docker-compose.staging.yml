@@ -1,6 +1,7 @@
 services:
   db:
     image: postgis/postgis
+    pull_policy: always
     restart: always
     user: postgres
     environment:
@@ -24,7 +25,7 @@ services:
       - ./.env
     volumes:
       - ./src:/app/src
-    command: sh -c "npm run build && npm run prod"
+    command: [sh, -cx, "npm run db:migration:run && npm run build && npm run prod"]
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5001/'' --data ''{"query":"query { __typename }"}'' || exit 1'
       interval: 5s
@@ -37,7 +38,7 @@ services:
     image: cityguidewild/cityguidewild_client_staging
     command: sh -c "npm run build"
     env_file:
-      - ../front/.env
+      - ./.env
     environment:
       - NODE_ENV=production
     volumes:
