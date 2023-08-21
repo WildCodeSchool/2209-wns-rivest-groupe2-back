@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
@@ -25,7 +26,7 @@ import { Email, sendMail } from "../nodemailer/transporter";
 import { v4 as uuidv4 } from "uuid";
 
 const envUrl =
-  process.env.NODE_ENV === "prod"
+  process.env.NODE_ENV === "production"
     ? `https://rivest2.wns.wilders.dev/`
     : process.env.NODE_ENV === "staging"
     ? `https://staging.rivest2.wns.wilders.dev/`
@@ -109,7 +110,8 @@ export class UserResolver {
             email: userFromDB.email,
             role: userFromDB.role.name,
           },
-          process.env.JWT_SECRET_KEY
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: 604800 }
         );
         return { token, userFromDB };
       } else {
@@ -182,7 +184,8 @@ export class UserResolver {
           email: userFromDB.email,
           role: userFromDB.role.name,
         },
-        process.env.JWT_SECRET_KEY
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: 604800 }
       );
       return { token, userFromDB };
     } catch (error) {
@@ -285,60 +288,6 @@ export class UserResolver {
 
   @Authorized("admin", "city_admin")
   @Mutation(() => User)
-  async updateUserRole(
-    @Arg("userId") userId: string,
-    @Arg("role") newRoleName: string,
-    @Ctx() context: UserContext
-  ): Promise<User | null> {
-    const id = Number(userId);
-    if (isNaN(id)) {
-      throw new Error("Invalid user ID");
-    }
-
-    const user = await dataSource.manager.findOne(User, { where: { id } });
-    if (user == null) {
-      throw new Error("User not found");
-    }
-
-    const newRole = await dataSource.manager.findOne(Role, {
-      where: { name: newRoleName },
-    });
-    if (newRole == null) {
-      throw new Error("Role not found");
-    }
-
-    if (
-      context?.user?.role?.name === "admin" &&
-      ["admin", "city_admin", "super_user", "free_user"].includes(newRoleName)
-    ) {
-      user.role = newRole;
-    } else if (
-      context?.user?.role?.name === "city_admin" &&
-      ["super_user"].includes(newRoleName)
-    ) {
-      user.role = newRole;
-    } else {
-      if (
-        context?.user?.role?.name !== "admin" &&
-        context?.user?.role?.name !== "city_admin"
-      ) {
-        throw new Error(
-          "Unauthorized: User does not have sufficient permissions to perform this action."
-        );
-      } else {
-        throw new Error(
-          `Unauthorized: '${context?.user?.role?.name}' cannot assign the role '${newRoleName}'.`
-        );
-      }
-    }
-
-    await dataSource.manager.save(user);
-
-    return user;
-  }
-
-  @Authorized("admin", "city_admin")
-  @Mutation(() => User)
   async updateUserRoleAndCity(
     @Arg("userId") userId: string,
     @Arg("role") newRoleName: string,
@@ -401,6 +350,11 @@ export class UserResolver {
       user.city = city as City;
     }
 
+    if (newRoleName === "free_user" || newRoleName === "admin") {
+      // @ts-ignore
+      user.city = null;
+    }
+
     await dataSource.manager.save(user);
 
     return user;
@@ -412,6 +366,9 @@ export class UserResolver {
     @Arg("username") username: string,
     @Arg("password") password: string
   ): Promise<RegisterResponse> {
+    if (process.env.NODE_ENV !== "test") {
+      throw new Error("This mutation is only allowed in test environments");
+    }
     try {
       if (!Regex.email(email) || !Regex.password(password)) {
         throw Error("Invalid email, password or pseudo");

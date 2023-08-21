@@ -20,7 +20,9 @@ export class City {
   coordinates: Point;
 
   @Field(() => [PointOfInterest], { nullable: true })
-  @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city)
+  @OneToMany(() => PointOfInterest, (pointOfInterest) => pointOfInterest.city, {
+    onDelete: "CASCADE",
+  })
   pointOfInterest: PointOfInterest[];
 
   @Field(() => [User], { nullable: true })

@@ -9,12 +9,12 @@ export class Role {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(({ nullable: true }))
-  @Column(({ nullable: true }))
+  @Field()
+  @Column()
   name: string;
 
-  @Field(({ nullable: true }))
-  @Column(({ nullable: true }))
+  @Field()
+  @Column()
   description: string;
 
   @Field(() => [User])

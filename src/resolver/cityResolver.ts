@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import {
   Arg,
   Authorized,
@@ -39,7 +40,7 @@ export class CityResolver {
     });
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => City)
   async createCity(@Arg("data") data: CityType): Promise<City | ApolloError> {
     const newCity = new City();
@@ -49,12 +50,14 @@ export class CityResolver {
     try {
       const cityFromDB = await dataSource.manager.save(City, newCity);
       return cityFromDB;
-    } catch (err: any) {
-      throw new ApolloError(err.message);
+    } catch (error: any) {
+      throw new ApolloError(
+        `Erreur lors de la création de la ville : ${error.message}`
+      );
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => City)
   async updateCity(
     @Arg("data") data: UpdatedCityType
@@ -72,18 +75,26 @@ export class CityResolver {
       await dataSource.manager.save(City, cityToUpdate);
       return cityToUpdate;
     } catch (error: any) {
-      throw new ApolloError(error.message);
+      throw new ApolloError(
+        `Erreur lors de la modification de la ville : ${error.message}`
+      );
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => String)
   async deleteCity(@Arg("id") id: number): Promise<String | ApolloError> {
     try {
-      await dataSource.manager.delete(City, { id });
+      const cityToDelete = await dataSource.manager.findOne(City, {
+        where: { id },
+        relations: ["pointOfInterest"],
+      });
+      await dataSource.manager.delete(City, cityToDelete);
       return "city deleted";
-    } catch (err: any) {
-      throw new ApolloError(err.message);
+    } catch (error: any) {
+      throw new ApolloError(
+        `Erreur lors de la suppression de la ville : ${error.message}`
+      );
     }
   }
 }

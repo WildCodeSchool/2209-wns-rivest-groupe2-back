@@ -107,5 +107,3 @@ export class PointOfInterest implements IPoi {
   })
   city: City;
 }
-
-

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
+/* eslint-disable @typesonflript-eslint/prefer-ts-expect-error */
 import { DeepPartial } from "typeorm";
 import { PointOfInterest, POIType } from "../../entities/pointOfInterest";
 

@@ -19,7 +19,7 @@ export class CommentResolver {
       return comments;
     } catch (error) {
       console.error("Error fetching all comments:", error);
-      return [];
+      throw new Error("Error fetching all comments:");
     }
   }
 

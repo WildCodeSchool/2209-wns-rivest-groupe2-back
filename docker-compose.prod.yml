@@ -27,7 +27,8 @@ services:
       - ./.env
     volumes:
       - ./src:/app/src
-    command: [sh, -cx, "npm run db:migration:run && npm run build && npm run prod"]
+    command:
+      [sh, -cx, "npm run db:migration:run && npm run build && npm run prod"]
     healthcheck:
       test: 'curl --fail --request POST --header ''content-type: application/json'' --url ''http://localhost:5000/'' --data ''{"query":"query { __typename }"}'' || exit 1'
       interval: 5s

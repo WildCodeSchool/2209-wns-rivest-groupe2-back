@@ -23,7 +23,7 @@ const port = 5000;
 const start = async (): Promise<void> => {
   await dataSource.initialize();
 
-  // initialisation BDD en DEV et PROD
+  // initialisation BDD en DEV
   if (process.env.NODE_ENV !== "test") {
     console.log("🚀 ~ migration init DB is starting...");
     const migration = new PopulateInitDb();

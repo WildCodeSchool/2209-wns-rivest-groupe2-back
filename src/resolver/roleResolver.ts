@@ -8,7 +8,9 @@ export class RoleResolver {
   @Query(() => [Role])
   async getAllRoles(): Promise<Role[]> {
     try {
-      const roles = await dataSource.manager.find(Role);
+      const roles = await dataSource.manager.find(Role, {
+        relations: ["users"],
+      });
       return roles;
     } catch (err: any) {
       throw new ApolloError(err.message);

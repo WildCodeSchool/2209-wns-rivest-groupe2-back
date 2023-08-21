@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import { Arg, Mutation, Query, Resolver, Authorized } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, Authorized, Ctx } from "type-graphql";
 import dataSource from "../utils/datasource";
 import { ApolloError } from "apollo-server";
 import { PointOfInterest } from "../entities/pointOfInterest";
 import { CreatePoiInput } from "./inputsPoi/createPoiInput";
 import { UpdatePoiInput } from "./inputsPoi/updatePoiInput";
 import { OpeningHours } from "../entities/openingHours";
+import { UserContext } from "../interfaces/UserContext";
 
 @Resolver(PointOfInterest)
 export class PointOfInterestResolver {
@@ -26,10 +27,11 @@ export class PointOfInterestResolver {
   }
 
   @Query(() => PointOfInterest)
-  async getPOIbyId(
-    @Arg("id") id: number,
-  ): Promise<PointOfInterest> {
-    const poi = await dataSource.manager.findOne(PointOfInterest, { where: { id }, relations: ["comments", "comments.user"] });
+  async getPOIbyId(@Arg("id") id: number): Promise<PointOfInterest> {
+    const poi = await dataSource.manager.findOne(PointOfInterest, {
+      where: { id },
+      relations: ["comments", "comments.user"],
+    });
 
     if (poi == null) {
       throw new Error("POI not found");
@@ -59,11 +61,19 @@ export class PointOfInterestResolver {
     return sortedPois;
   }
 
-  @Authorized()
+  @Authorized("admin", "city_admin", "super_user")
   @Mutation(() => PointOfInterest)
   async createPoi(
-    @Arg("data") data: CreatePoiInput
+    @Arg("data") data: CreatePoiInput,
+    @Ctx() context: UserContext
   ): Promise<PointOfInterest | ApolloError> {
+    if (context?.user?.role.name !== "admin") {
+      if (context?.user?.city?.name !== data.city.name) {
+        throw new Error(
+          "Unauthorized: User does not have sufficient permissions to perform this action."
+        );
+      }
+    }
     try {
       const newPoi = new PointOfInterest();
       newPoi.name = data.name;
@@ -104,7 +114,7 @@ export class PointOfInterestResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => PointOfInterest)
   async updatePoi(
     @Arg("data") data: UpdatePoiInput
@@ -185,7 +195,7 @@ export class PointOfInterestResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => String)
   async deletePoi(@Arg("id") id: number): Promise<String> {
     try {
