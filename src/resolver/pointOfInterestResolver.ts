@@ -30,7 +30,14 @@ export class PointOfInterestResolver {
   async getPOIbyId(@Arg("id") id: number): Promise<PointOfInterest> {
     const poi = await dataSource.manager.findOne(PointOfInterest, {
       where: { id },
-      relations: ["comments", "comments.user"],
+      relations: [
+        "openingHours",
+        "favorites",
+        "comments",
+        "comments.user",
+        "favorites.user",
+        "city",
+      ],
     });
 
     if (poi == null) {
