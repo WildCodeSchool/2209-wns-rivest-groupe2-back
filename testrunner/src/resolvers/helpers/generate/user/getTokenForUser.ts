@@ -7,19 +7,22 @@ export const getTokenForUser = async (
 ): Promise<string> => {
   const res = await client.query({
     query: gql`
-      query Query($email: String!, $password: String!) {
-        getToken(email: $email, password: $password) {
+      query Query($password: String!, $email: String!) {
+        getToken(password: $password, email: $email) {
           token
           userFromDB {
             id
             email
+            username
             firstname
             lastname
+            profilePicture
+            isVerified
           }
         }
       }
     `,
-    variables: { email, password },
+    variables: { password, email },
     fetchPolicy: "no-cache",
   });
 

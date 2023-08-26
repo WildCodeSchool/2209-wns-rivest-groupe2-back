@@ -1,10 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
-import { Rate } from "./rate";
 import { Point } from "geojson";
 import { IPoi } from "../interfaces/IPoi";
 import { Favorite } from "./favorite";
+import { OpeningHours } from "./openingHours";
+import { City } from "./city";
 
 export enum POIType {
   RESTAURANT = "restaurant",
@@ -15,12 +22,6 @@ export enum POIType {
   MUSEUM = "musee",
 }
 
-export enum priceRange {
-  LOW = "$",
-  MEDIUM = "$$",
-  HIGH = "$$$",
-}
-
 @ObjectType()
 @Entity()
 export class PointOfInterest implements IPoi {
@@ -28,19 +29,19 @@ export class PointOfInterest implements IPoi {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column({ unique: true })
   name: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column()
   address: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Field()
+  @Column()
   postal: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column({
     type: "enum",
     enum: POIType,
@@ -53,18 +54,25 @@ export class PointOfInterest implements IPoi {
   @Column("float", { array: true, nullable: true })
   coordinates: Point;
 
-  @Field({ nullable: true })
-  @Column({ type: "timestamp", nullable: true })
+  @Field()
+  @Column({ type: "timestamp" })
   creationDate: Date;
 
   @Field(() => Number, { nullable: true })
   public averageRate(): number | null {
-    if (this.rates === null || this.rates === undefined || this.rates.length === 0) {
+    if (
+      this.comments === null ||
+      this.comments === undefined ||
+      this.comments.length === 0
+    ) {
       return null;
     }
 
-    const sum = this.rates.reduce((acc: number, rate: Rate) => acc + rate.rate, 0);
-    const average = sum / this.rates.length;
+    const sum = this.comments.reduce(
+      (acc: number, comment: Comment) => acc + comment.rate,
+      0
+    );
+    const average = sum / this.comments.length;
 
     return Number(average.toFixed(1));
   }
@@ -81,39 +89,23 @@ export class PointOfInterest implements IPoi {
   @Column({ nullable: true })
   description: string;
 
-  @Field({ nullable: true })
-  @Column({
-    nullable: true,
-    type: "enum",
-    enum: priceRange,
-  })
-  priceRange: priceRange;
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  city: string;
-
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  daysOpen: string;
-
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  hoursOpen: string;
-
-  @Field(() => [String], { nullable: true })
-  @Column({ array: true, nullable: true })
-  hoursClose: string;
- 
-  @Field(() => Comment, { nullable: true })
+  @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.pointOfInterest)
-  public comments: Comment[];
+  comments: Comment[];
 
-  @Field(() => Rate, { nullable: true })
-  @OneToMany(() => Rate, (rate) => rate.pointOfInterest)
-  public rates: Rate[];
-
-  @Field(() => Favorite, { nullable: true })
+  @Field(() => [Favorite], { nullable: true })
   @OneToMany(() => Favorite, (favorite) => favorite.pointOfInterest)
-  public favorites: Favorite[];
+  favorites: Favorite[];
+
+  @Field(() => [OpeningHours], { nullable: true })
+  @OneToMany(() => OpeningHours, (openingHours) => openingHours.pointOfInterest)
+  openingHours: OpeningHours[];
+
+  @Field(() => City, { nullable: true })
+  @ManyToOne(() => City, (city) => city.pointOfInterest, {
+    onDelete: "CASCADE",
+  })
+  city: City;
 }
+
+

@@ -1,16 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { ObjectType, Field } from "type-graphql";
 import { Comment } from "./comment";
-import { Rate } from "./rate";
 import { Favorite } from "./favorite";
-
-export enum UserType {
-  SUPERADMIN = "superAdmin",
-  ADMINCITY = "adminCity",
-  SUPERUSER = "superUser",
-  PAIDUSER = "paidUser",
-  FREEUSER = "freeUser",
-}
+import { Role } from "./role";
+import { City } from "./city";
 
 @ObjectType()
 @Entity()
@@ -19,22 +19,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ unique: true })
   email: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ unique: true })
   username: string;
-
-  @Field({ nullable: true })
-  @Column({
-    type: "enum",
-    enum: UserType,
-    default: UserType.FREEUSER,
-    nullable: true,
-  })
-  type: UserType;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -44,6 +35,14 @@ export class User {
   @Column({ nullable: true })
   lastname?: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  uuid?: string;
+
+  @Field()
+  @Column({ type: "boolean", default: false })
+  public isVerified: boolean;
+
   @Field()
   @Column()
   hashedPassword: string;
@@ -52,23 +51,32 @@ export class User {
   @Column({ nullable: true })
   profilePicture?: string;
 
+  @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.user, {
-    cascade: true,
+    onDelete: "CASCADE",
     eager: true,
   })
   comments: Comment[];
 
-  @OneToMany(() => Rate, (rate) => rate.user, {
-  cascade: true,
-  eager: true,
-  })
-  rates: Rate[];
-
   @OneToMany(() => Favorite, (favorite) => favorite.user, {
-  cascade: true,
-  eager: true,
+    cascade: true,
+    eager: true,
   })
   favorites: Favorite[];
 
-}
+  @Field(() => Role)
+  @ManyToOne(() => Role, (role) => role.users, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn({ name: "role_id" })
+  role: Role;
 
+  @Field(() => City, { nullable: true })
+  @ManyToOne(() => City, (city) => city.users, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  @JoinColumn({ name: "city_id" })
+  city: City;
+}

@@ -7,13 +7,14 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolver/userResolver";
 import { CityResolver } from "./resolver/cityResolver";
 import { PointOfInterestResolver } from "./resolver/pointOfInterestResolver";
-import { RateResolver } from "./resolver/rateResolver";
 import { CommentResolver } from "./resolver/commentResolver";
 import { DeleteAllEntitiesResolver } from "./resolver/testResolver";
 import { IDecodedJWT } from "./interfaces/IDecodedJWT";
 import { User } from "./entities/user";
 import { UserContext } from "./interfaces/UserContext";
 import { FavoriteResolver } from "./resolver/favoriteResolver";
+import { RoleResolver } from "./resolver/roleResolver";
+import { PopulateInitDb } from "./migrations/PopulateInitDb";
 
 dotenv.config();
 
@@ -21,20 +22,36 @@ const port = 5000;
 
 const start = async (): Promise<void> => {
   await dataSource.initialize();
+
+  // initialisation BDD en DEV et PROD
+  if (process.env.NODE_ENV !== "test") {
+    console.log("🚀 ~ migration init DB is starting...");
+    const migration = new PopulateInitDb();
+    await migration.up(dataSource.createQueryRunner());
+    console.log("🚀 ~ migration init DB done ✅");
+  }
+
   const schema = await buildSchema({
     resolvers: [
       UserResolver,
-      RateResolver,
       CommentResolver,
       CityResolver,
       FavoriteResolver,
       PointOfInterestResolver,
       DeleteAllEntitiesResolver,
+      RoleResolver,
     ],
-    authChecker: ({ context }) => {
-      if (context.user.email === undefined) {
+    authChecker: ({ context }, roles) => {
+      if (context?.user?.email === undefined) {
         return false;
-      } else return true;
+      } else if (
+        roles?.length === 0 ||
+        roles.includes(context?.user?.role?.name)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     },
   });
   const server = new ApolloServer({
