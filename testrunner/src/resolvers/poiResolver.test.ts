@@ -37,7 +37,7 @@ describe("Point Of Interest resolver", () => {
     expect(res.data?.getAllPoi.length).toEqual(1);
   });
 
-  it("create a new point of interest if a user is connected", async () => {
+  it("create a new point of interest if a user is connected as admin", async () => {
     const res = await client.mutate({
       mutation: CREATE_POI,
       variables: {

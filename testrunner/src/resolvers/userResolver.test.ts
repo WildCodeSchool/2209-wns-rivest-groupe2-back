@@ -27,7 +27,7 @@ describe("User resolver", () => {
     expect(res.data?.createUserTestRunner.userFromDB.firstname).toEqual(null);
     expect(res.data?.createUserTestRunner.userFromDB.lastname).toEqual(null);
     expect(res.data?.createUserTestRunner.userFromDB.role.name).toEqual(
-      "free_user"
+      "admin"
     );
     expect(res.data?.createUserTestRunner.userFromDB.username).toEqual(
       "test123"
